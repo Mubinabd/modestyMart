@@ -4,7 +4,7 @@ run:
 	go run main.go
 
 proto-gen:
-	protoc --go_out=./ --go-grpc_out=./ modestymart_submodule/*.proto
+	protoc --go_out=./ --go-grpc_out=./ modestyMart_submodule/*.proto
 
 migrate_up:
 	migrate -path migrations -database postgres://postgres:postgres@localhost:5432/modestymart?sslmode=disable -verbose up
