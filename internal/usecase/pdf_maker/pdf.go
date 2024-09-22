@@ -7,7 +7,7 @@ import (
 
 	"github.com/jung-kurt/gofpdf/v2"
 	"github.com/skip2/go-qrcode"
-	"github.com/Mubinabd/flash_sale/internal/pkg/config"
+	"github.com/Mubinabd/modestyMart/internal/pkg/config"
 )
 
 func GenerateCertificate(name, course, issuedBy string, cf *config.Config) (*string, error) {

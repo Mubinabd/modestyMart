@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/Mubinabd/modestyMart/pkg/genproto"
+	pb "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )

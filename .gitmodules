@@ -1,0 +1,3 @@
+[submodule "modestyMart_submodule"]
+	path = modestyMart_submodule
+	url = https://github.com/Mubinabd/modestyMart_submodule.git
