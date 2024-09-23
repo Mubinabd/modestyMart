@@ -28,8 +28,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PaymentsServiceClient interface {
-	CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*Payment, error)
-	GetPayment(ctx context.Context, in *Payment, opts ...grpc.CallOption) (*Payment, error)
+	CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*Void, error)
+	GetPayment(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Payment, error)
 	ListPayments(ctx context.Context, in *ListPaymentsReq, opts ...grpc.CallOption) (*ListPaymentsRes, error)
 }
 
@@ -41,9 +41,9 @@ func NewPaymentsServiceClient(cc grpc.ClientConnInterface) PaymentsServiceClient
 	return &paymentsServiceClient{cc}
 }
 
-func (c *paymentsServiceClient) CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*Payment, error) {
+func (c *paymentsServiceClient) CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*Void, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Payment)
+	out := new(Void)
 	err := c.cc.Invoke(ctx, PaymentsService_CreatePayment_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (c *paymentsServiceClient) CreatePayment(ctx context.Context, in *CreatePay
 	return out, nil
 }
 
-func (c *paymentsServiceClient) GetPayment(ctx context.Context, in *Payment, opts ...grpc.CallOption) (*Payment, error) {
+func (c *paymentsServiceClient) GetPayment(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Payment, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Payment)
 	err := c.cc.Invoke(ctx, PaymentsService_GetPayment_FullMethodName, in, out, cOpts...)
@@ -75,8 +75,8 @@ func (c *paymentsServiceClient) ListPayments(ctx context.Context, in *ListPaymen
 // All implementations must embed UnimplementedPaymentsServiceServer
 // for forward compatibility
 type PaymentsServiceServer interface {
-	CreatePayment(context.Context, *CreatePaymentReq) (*Payment, error)
-	GetPayment(context.Context, *Payment) (*Payment, error)
+	CreatePayment(context.Context, *CreatePaymentReq) (*Void, error)
+	GetPayment(context.Context, *GetById) (*Payment, error)
 	ListPayments(context.Context, *ListPaymentsReq) (*ListPaymentsRes, error)
 	mustEmbedUnimplementedPaymentsServiceServer()
 }
@@ -85,10 +85,10 @@ type PaymentsServiceServer interface {
 type UnimplementedPaymentsServiceServer struct {
 }
 
-func (UnimplementedPaymentsServiceServer) CreatePayment(context.Context, *CreatePaymentReq) (*Payment, error) {
+func (UnimplementedPaymentsServiceServer) CreatePayment(context.Context, *CreatePaymentReq) (*Void, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePayment not implemented")
 }
-func (UnimplementedPaymentsServiceServer) GetPayment(context.Context, *Payment) (*Payment, error) {
+func (UnimplementedPaymentsServiceServer) GetPayment(context.Context, *GetById) (*Payment, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPayment not implemented")
 }
 func (UnimplementedPaymentsServiceServer) ListPayments(context.Context, *ListPaymentsReq) (*ListPaymentsRes, error) {
@@ -126,7 +126,7 @@ func _PaymentsService_CreatePayment_Handler(srv interface{}, ctx context.Context
 }
 
 func _PaymentsService_GetPayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Payment)
+	in := new(GetById)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func _PaymentsService_GetPayment_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: PaymentsService_GetPayment_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PaymentsServiceServer).GetPayment(ctx, req.(*Payment))
+		return srv.(PaymentsServiceServer).GetPayment(ctx, req.(*GetById))
 	}
 	return interceptor(ctx, in, info, handler)
 }
