@@ -20,3 +20,8 @@ migrate_file:
 
 swag-gen:
 	~/go/bin/swag init -g ./api/api.go -o api/docs force 1
+
+git:
+	git add .
+	git commit -m "*fixed"
+	git push 

@@ -6,8 +6,8 @@ import (
 	a "github.com/Mubinabd/modestyMart/internal/http"
 	"github.com/Mubinabd/modestyMart/internal/http/handlers"
 	"github.com/Mubinabd/modestyMart/internal/pkg/config"
-	kafka "github.com/Mubinabd/modestyMart/internal/pkg/kafka/consumer"
-	prd "github.com/Mubinabd/modestyMart/internal/pkg/kafka/producer"
+	"github.com/Mubinabd/modestyMart/internal/storage/repository"
+	prd "github.com/Mubinabd/modestyMart/internal/usecase/kafka"
 	s "github.com/Mubinabd/modestyMart/internal/usecase/service"
 	"github.com/go-redis/redis/v8"
 	"golang.org/x/exp/slog"
@@ -15,7 +15,7 @@ import (
 
 func Run(cfg *config.Config) {
 	// Postgres Connection
-	db, err := postgresql.New(cfg)
+	db, err := repository.New(cfg)
 	if err != nil {
 		slog.Error("can't connect to db: %v", err)
 		return
@@ -24,7 +24,7 @@ func Run(cfg *config.Config) {
 	slog.Info("Connected to Postgres")
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis_auth:6379",
+		Addr:     "localhost:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -36,10 +36,13 @@ func Run(cfg *config.Config) {
 
 	authService := s.NewAuthService(db)
 	userService := s.NewUserService(db)
+	productService := s.NewProductService(db)
+	paymentService := s.NewPaymentService(db)
+	orderService := s.NewOrderService(db)
+	categoryService := s.NewCategoryService(db)
 
 	// Kafka
-	brokers := []string{"kafka_auth:9092"}
-	cm := kafka.NewKafkaConsumerManager()
+	brokers := []string{"localhost:9092"}
 	pr, err := prd.NewKafkaProducer(brokers)
 	if err != nil {
 		slog.Error("Failed to create Kafka producer:", err)
@@ -47,7 +50,7 @@ func Run(cfg *config.Config) {
 	}
 
 	// HTTP Server
-	h := handlers.NewHandler(authService, userService, rdb, &pr)
+	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService, rdb, &pr)
 
 	router := a.NewGin(h)
 	router.SetTrustedProxies(nil)
