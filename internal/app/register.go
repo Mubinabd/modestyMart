@@ -84,5 +84,12 @@ func Register(h *KafkaHandler, cfg *config.Config) error {
 			return errors.New("error registering consumer:" + err.Error())
 		}
 	}
+	if err := kcm.RegisterConsumer(brokers, "create-cart", "create-cart-id", h.CreateCart()); err != nil {
+		if err == kafka.ErrConsumerAlreadyExists {
+			return errors.New("consumer for topic 'create-cart' already exists")
+		} else {
+			return errors.New("error registering consumer:" + err.Error())
+		}
+	}
 	return nil
 }

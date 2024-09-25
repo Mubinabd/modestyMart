@@ -9,6 +9,7 @@ type StorageI interface {
 	Order() OrderI
 	Payment() PaymentI
 	Category() CategoryI
+	Cart() CartI
 	Auth() AuthI
 	User() UserI
 }
@@ -63,3 +64,9 @@ type UserI interface {
 	EditSetting(*pb.SettingReq) (*pb.Void, error)
 	DeleteUser(*pb.GetById) (*pb.Void, error)
 }
+
+type CartI interface {
+	CreateCart(req *pb.CreateCartReq) (*pb.Void, error)
+	GetCart(req *pb.GetById) (*pb.Cart, error)
+	ListAllCarts(req *pb.ListAllCartReq) (*pb.ListAllCartRes, error)
+}	

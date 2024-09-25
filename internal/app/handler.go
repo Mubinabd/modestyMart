@@ -16,6 +16,7 @@ type KafkaHandler struct {
 	order *service.OrderService
 	payment *service.PaymentService
 	category *service.CategoryService
+	cart *service.CartService
 }
 
 func (h *KafkaHandler) Register() func(message []byte) {
@@ -198,5 +199,23 @@ func (h *KafkaHandler) UpdateProduct() func(message []byte) {
 			return
 		}
 		log.Printf("update product: %+v", res)
+	}
+}
+func (h *KafkaHandler) CreateCart() func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.CreateCartReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
+		}
+
+		res, err := h.cart.CreateCart(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		log.Printf("create cart: %+v", res)
 	}
 }

@@ -96,3 +96,13 @@ CREATE TABLE IF NOT EXISTS category(
     updated_at TIMESTAMP,
     deleted_at BIGINT DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS carts(
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id),
+    cart_number INT NOT NULL,
+    cart_name VARCHAR(255) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
+    deleted_at BIGINT DEFAULT 0
+);

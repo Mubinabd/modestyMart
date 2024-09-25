@@ -15,6 +15,7 @@ type Storage struct {
 	ProductS  storage.ProductI
 	PaymentS  storage.PaymentI
 	CategoryS storage.CategoryI
+	CartS storage.CartI
 	AuthS     storage.AuthI
 	UserS     storage.UserI
 }
@@ -46,6 +47,7 @@ func New(cfg *config.Config) (*Storage, error) {
 		CategoryS: NewCategoryRepo(db),
 		AuthS:     NewAuthRepo(db),
 		UserS:     NewUserRepo(db),
+		CartS: NewCartRepo(db),
 	}, nil
 }
 func (s *Storage) Order() storage.OrderI {
@@ -74,6 +76,14 @@ func (s *Storage) Category() storage.CategoryI {
 	}
 	return s.CategoryS
 }
+
+func (s *Storage) Cart() storage.CartI {
+	if s.CartS == nil {
+		s.CartS = NewCartRepo(s.Db)
+	}
+	return s.CartS
+}
+
 func (s *Storage) Auth() storage.AuthI {
 	if s.AuthS == nil {
 		s.AuthS = NewAuthRepo(s.Db)

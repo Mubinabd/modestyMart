@@ -40,6 +40,7 @@ func Run(cfg *config.Config) {
 	paymentService := s.NewPaymentService(db)
 	orderService := s.NewOrderService(db)
 	categoryService := s.NewCategoryService(db)
+	cartService := s.NewCartService(db)
 
 	// Kafka
 	brokers := []string{"localhost:9092"}
@@ -50,7 +51,7 @@ func Run(cfg *config.Config) {
 	}
 
 	// HTTP Server
-	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService, rdb, &pr)
+	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService,cartService, rdb, &pr)
 
 	router := a.NewGin(h)
 	router.SetTrustedProxies(nil)

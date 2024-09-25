@@ -57,7 +57,7 @@ func (p *ProductRepo) UpdateProduct(req *pb.UpdateProductReq) (*pb.Void, error) 
 		args = append(args, req.Body.ImageUrl)
 		conditions = append(conditions, fmt.Sprintf("image_url = $%d", len(args)))
 	}
-	if req.Body.Price != "" && req.Body.Price != "string" {
+	if req.Body.Price != 0 {
 		args = append(args, req.Body.Price)
 		conditions = append(conditions, fmt.Sprintf("price = $%d", len(args)))
 	}
@@ -186,7 +186,7 @@ func (p *ProductRepo) ListAllProducts(req *pb.ListAllProductsReq) (*pb.ListAllPr
 		args = append(args, req.Stock)
 		argCount++
 	}
-	if req.Price != "" {
+	if req.Price != 0 {
 		filters = append(filters, fmt.Sprintf("price = $%d", argCount))
 		args = append(args, req.Price)
 		argCount++

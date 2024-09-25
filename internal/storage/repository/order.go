@@ -48,7 +48,7 @@ func (o *OrderRepo) UpdateOrder(req *pb.UpdateOrderReq) (*pb.Void, error) {
 		args = append(args, req.Order.ProductID)
 		conditions = append(conditions, fmt.Sprintf("product_id = $%d", len(args)))
 	}
-	if req.Order.TotalPrice != "" && req.Order.TotalPrice != "string" {
+	if req.Order.TotalPrice != 0 {
 		args = append(args, req.Order.TotalPrice)
 		conditions = append(conditions, fmt.Sprintf("total_price = $%d", len(args)))
 	}

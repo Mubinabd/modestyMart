@@ -13,11 +13,12 @@ type Handlers struct {
 	Category *s.CategoryService
 	Auth     *s.AuthService
 	User     *s.UserService
+	Cart     *s.CartService
 	RDB      *redis.Client
 	Producer kafka.KafkaProducer
 }
 
-func NewHandler(product *s.ProductService, payment *s.PaymentService, order *s.OrderService, category *s.CategoryService, auth *s.AuthService, user *s.UserService, rdb *redis.Client, pr *kafka.KafkaProducer) *Handlers {
+func NewHandler(product *s.ProductService, payment *s.PaymentService, order *s.OrderService, category *s.CategoryService, auth *s.AuthService, user *s.UserService,cart *s.CartService, rdb *redis.Client, pr *kafka.KafkaProducer) *Handlers {
 	return &Handlers{
 		Product:  product,
 		Payment:  payment,
@@ -25,6 +26,7 @@ func NewHandler(product *s.ProductService, payment *s.PaymentService, order *s.O
 		Category: category,
 		Auth:     auth,
 		User:     user,
+		Cart:     cart,
 		RDB:      rdb,
 		Producer: *pr,
 	}
