@@ -22,18 +22,57 @@ func NewPaymentRepo(db *sql.DB) *PaymentRepo {
 
 func (pr *PaymentRepo) CreatePayment(req *pb.CreatePaymentReq) (*pb.Void, error) {
 	id := uuid.NewString()
-	query :=
-		`INSERT INTO payments
-		(id, payment_method, amount, order_id, status) 
-		VALUES ($1, $2, $3, $4, $5)`
-
-	_, err := pr.db.Exec(query, id, req.PaymentMethod, req.Amount, req.OrderID, req.Status)
+	tx, err := pr.db.Begin() 
 	if err != nil {
-		log.Println("Error while creating payment", err)
+		log.Println("Error starting transaction", err)
 		return nil, err
 	}
+
+	var currentAmount int32
+	cartQuery := `SELECT amount FROM cart WHERE card_id = $1`
+	err = tx.QueryRow(cartQuery, req.CardId).Scan(&currentAmount)
+	if err != nil {
+		log.Println("Error fetching current amount from cart", err)
+		tx.Rollback() 
+		return nil, err
+	}
+
+	if currentAmount < req.Amount {
+		log.Println("Insufficient amount in the cart")
+		tx.Rollback()
+		return nil, fmt.Errorf("insufficient amount in the cart")
+	}
+	newAmount := currentAmount - req.Amount
+
+	updateCartQuery := `UPDATE cart SET amount = $1 WHERE card_id = $2`
+	_, err = tx.Exec(updateCartQuery, newAmount, req.CardId)
+	if err != nil {
+		log.Println("Error updating cart amount", err)
+		tx.Rollback() 
+		return nil, err
+	}
+
+	insertPaymentQuery :=
+		`INSERT INTO payments
+		(id, payment_method, amount, order_id, card_id, status) 
+		VALUES ($1, $2, $3, $4, $5, $6)`
+
+	_, err = tx.Exec(insertPaymentQuery, id, req.PaymentMethod, req.Amount, req.OrderID, req.CardId, req.Status)
+	if err != nil {
+		log.Println("Error inserting payment", err)
+		tx.Rollback() 
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		log.Println("Error committing transaction", err)
+		return nil, err
+	}
+
 	return &pb.Void{}, nil
 }
+
 
 func (pr *PaymentRepo) GetPayment(req *pb.GetById) (*pb.Payment, error) {
 	var payment pb.Payment
@@ -42,6 +81,7 @@ func (pr *PaymentRepo) GetPayment(req *pb.GetById) (*pb.Payment, error) {
 		p.payment_method, 
 		p.amount, 
 		p.status,
+		p.cart_id,
 		p.created_at,
 		o.id,
 		o.user_id,
@@ -67,6 +107,7 @@ func (pr *PaymentRepo) GetPayment(req *pb.GetById) (*pb.Payment, error) {
 		&payment.PaymentMethod,
 		&payment.Amount,
 		&payment.Status,
+		&payment.CartId,
 		&payment.CreatedAt,
 		&payment.Order.Id,
 		&payment.Order.UserID,
@@ -90,6 +131,7 @@ func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRe
 		p.payment_method, 
 		p.amount, 
 		p.status,
+		p.cart_id,
 		p.created_at,
 		o.id,
 		o.user_id,
@@ -153,6 +195,7 @@ func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRe
 			&payment.PaymentMethod,
 			&payment.Amount,
 			&payment.Status,
+			&payment.CartId,
 			&payment.CreatedAt,
 			&payment.Order.Id,
 			&payment.Order.UserID,

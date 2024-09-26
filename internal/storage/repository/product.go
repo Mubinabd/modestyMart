@@ -318,12 +318,12 @@ func (p *ProductRepo) GetProductsByPriceRange(req *pb.GetProductsByPriceRangeReq
 	var args []interface{}
 	filters := []string{}
 
-	if req.MinPrice != "" {
+	if req.MinPrice != 0 {
 		args = append(args, req.MinPrice)
 		filters = append(filters, fmt.Sprintf("p.price >= $%d", len(args)))
 	}
 
-	if req.MaxPrice != "" {
+	if req.MaxPrice != 0 {
 		args = append(args, req.MaxPrice)
 		filters = append(filters, fmt.Sprintf("p.price <= $%d", len(args)))
 	}

@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"strconv"
 
 	pb "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
@@ -9,53 +11,57 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Create group
-// @Description Create a new group
-// @Tags Group
+// @Summary Create Category
+// @Description Create a new Category
+// @Tags Category
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param group body pb.CreateGroupReq true "group data"
-// @Success 200 {string} string "message":"group created successfully"
+// @Param Category body pb.CreateCategoryReq true "Category data"
+// @Success 200 {string} string "message":"Category created successfully"
 // @Failure 400 {string} string "Invalid request"
 // @Failure 500 {string} string "Internal server error"
-// @Router /v1/group/create [post]
-func (h *Handlers) CreateGroup(c *gin.Context) {
-	var req pb.CreateGroupReq
+// @Router /v1/category/create [post]
+func (h *Handlers) CreateCategory(c *gin.Context) {
+	var req pb.CreateCategoryReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	_, err := h.Group.CreateGroup(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Producer.ProduceMessages("create-cat", input)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Group created successfully"})
+	c.JSON(200, gin.H{"message": "Category created successfully"})
 }
 
-// @Summary Get Group
-// @Description Get an group by ID
-// @Tags Group
+// @Summary Get Category
+// @Description Get an Category by ID
+// @Tags Category
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param id path string true "Group ID"
-// @Success 200 {object} pb.GroupGet "Group data"
+// @Param id path string true "Category ID"
+// @Success 200 {object} pb.Categories "Category data"
 // @Failure 400 {string} string "Invalid request"
-// @Failure 404 {string} string "Group not found"
+// @Failure 404 {string} string "Category not found"
 // @Failure 500 {string} string "Internal server error"
-// @Router /v1/group/{id} [get]
-func (h *Handlers) GetGroup(c *gin.Context) {
-	req := pb.ById{}
+// @Router /v1/category/{id} [get]
+func (h *Handlers) GetCategory(c *gin.Context) {
+	req := pb.GetById{}
 	id := c.Param("id")
 
 	req.Id = id
 
-	res, err := h.Group.GetGroup(context.Background(), &req)
+	res, err := h.Category.GetCategory(context.Background(), &req)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -65,47 +71,56 @@ func (h *Handlers) GetGroup(c *gin.Context) {
 
 }
 
-// @Summary Update Group
-// @Description Update an existing group by ID
-// @Tags Group
+// @Summary Update Category
+// @Description Update an existing Category by ID
+// @Tags Category
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param group body pb.UpdateGr true "Group update data"
-// @Success 200 {string} string "message":"Group updated successfully"
+// @Param Category body pb.UpdateCategoryReq true "Category update data"
+// @Success 200 {string} string "message":"Category updated successfully"
 // @Failure 400 {string} string "Invalid request"
 // @Failure 500 {string} string "Internal server error"
-// @Router /v1/group/update/{id} [put]
-func (h *Handlers) UpdateGroup(c *gin.Context) {
-	var req pb.UpdateGr
+// @Router /v1/category/update/{id} [put]
+func (h *Handlers) UpdateCategory(c *gin.Context) {
+	var req pb.UpdateCategoryReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	_, err := h.Group.UpdateGroup(context.Background(), &req)
+	input, err := json.Marshal(req)
+	err = h.Producer.ProduceMessages("update-cat", input)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		log.Println("cannot produce messages via kafka", err)
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "group updated successfully"})
+
+	c.JSON(200, gin.H{"message": "Category updated successfully"})
 }
 
-// @Summary List Groups
-// @Description List groups with filters
-// @Tags Group
+// @Summary List Categorys
+// @Description List Categorys with filters
+// @Tags Category
 // @Accept json
 // @Produce json
 // @Security BearerAuth
+// @Param name query int false "Name"
 // @Param limit query int false "Limit"
 // @Param offset query int false "Offset"
-// @Success 200 {object} pb.GroupListRes "List of groups"
+// @Success 200 {object} pb.ListCategoriesRes "List of Categorys"
 // @Failure 400 {string} string "Invalid request"
 // @Failure 500 {string} string "Internal server error"
-// @Router /v1/group/list [get]
-func (h *Handlers) ListGroups(c *gin.Context) {
-	var filter pb.GroupListReq
+// @Router /v1/category/list [get]
+func (h *Handlers) ListCategorys(c *gin.Context) {
+	var filter pb.ListAllCategoriesReq
+
+	name := c.Query("name")
+	filter.Name = name
 
 	f := pb.Pagination{}
 	filter.Pagination = &f
@@ -128,7 +143,7 @@ func (h *Handlers) ListGroups(c *gin.Context) {
 		}
 	}
 
-	resp, err := h.Group.ListGroups(context.Background(), &filter)
+	resp, err := h.Category.ListCategories(context.Background(), &filter)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -137,26 +152,26 @@ func (h *Handlers) ListGroups(c *gin.Context) {
 	c.JSON(200, resp)
 }
 
-// @Summary Delete Group
-// @Description Delete an group by ID
-// @Tags Group
+// @Summary Delete Category
+// @Description Delete an Category by ID
+// @Tags Category
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param id path string true "Group ID"
-// @Success 200 {string} string "message":"Group deleted successfully"
+// @Param id path string true "Category ID"
+// @Success 200 {string} string "message":"Category deleted successfully"
 // @Failure 400 {string} string "Invalid request"
 // @Failure 500 {string} string "Internal server error"
-// @Router /v1/group/delete/{id} [delete]
-func (h *Handlers) DeleteGroup(c *gin.Context) {
+// @Router /v1/category/delete/{id} [delete]
+func (h *Handlers) DeleteCategory(c *gin.Context) {
 	id := c.Param("id")
 
-	req := &pb.DeleteGr{Id: id}
-	_, err := h.Group.DeleteGroup(context.Background(), req)
+	req := &pb.GetById{Id: id}
+	_, err := h.Category.DeleteCategory(context.Background(), req)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Group deleted successfully"})
+	c.JSON(200, gin.H{"message": "Category deleted successfully"})
 }

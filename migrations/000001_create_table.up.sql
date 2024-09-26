@@ -77,17 +77,6 @@ CREATE TABLE IF NOT EXISTS orders(
     deleted_at BIGINT DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS payments(
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    order_id UUID NOT NULL REFERENCES orders(id),
-    payment_method payment_method NOT NULL,
-    amount INT NOT NULL,
-    status status_method NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP,
-    deleted_at BIGINT DEFAULT 0
-);
-
 CREATE TABLE IF NOT EXISTS category(
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     NAME VARCHAR(255) NOT NULL,
@@ -102,6 +91,17 @@ CREATE TABLE IF NOT EXISTS carts(
     cart_number INT NOT NULL,
     cart_name VARCHAR(255) NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
+    deleted_at BIGINT DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS payments(
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    order_id UUID NOT NULL REFERENCES orders(id),
+    cart_id UUID NOT NULL REFERENCES carts(id),
+    payment_method payment_method NOT NULL,
+    amount INT NOT NULL,
+    status status_method NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at BIGINT DEFAULT 0
