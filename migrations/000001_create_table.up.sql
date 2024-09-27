@@ -53,7 +53,27 @@ CREATE TABLE IF NOT EXISTS tokens (
 );
 
 
+CREATE TABLE IF NOT EXISTS category(
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    NAME VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
+    deleted_at BIGINT DEFAULT 0
+);
 
+CREATE TABLE IF NOT EXISTS products (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    category_id UUID REFERENCES category(id),
+    stock INT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
+    deleted_at BIGINT DEFAULT 0
+);
 CREATE TABLE IF NOT EXISTS orders(
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
@@ -61,15 +81,6 @@ CREATE TABLE IF NOT EXISTS orders(
     quantity INT NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
     status status_type NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP,
-    deleted_at BIGINT DEFAULT 0
-);
-
-CREATE TABLE IF NOT EXISTS category(
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    NAME VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at BIGINT DEFAULT 0
@@ -93,18 +104,6 @@ CREATE TABLE IF NOT EXISTS payments(
     payment_method payment_method NOT NULL,
     amount INT NOT NULL,
     status status_method NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP,
-    deleted_at BIGINT DEFAULT 0
-);
-CREATE TABLE IF NOT EXISTS products (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    category_id UUID REFERENCES category(id),
-    stock INT NOT NULL,
-    image_url VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at BIGINT DEFAULT 0
