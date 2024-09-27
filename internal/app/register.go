@@ -19,12 +19,12 @@ func UserRegister(u *service.AuthService) func(message []byte) {
 			return
 		}
 
-		_, err := u.Register(context.Background(), &cer)
+		res, err := u.Register(context.Background(), &cer)
 		if err != nil {
 			log.Fatal(err)
 			return
 		}
-		log.Printf("Register User: %+v")
+		log.Printf("Register User: %+v",res)
 	}
 }
 func CreateCategory(u *service.CategoryService) func(message []byte) {
