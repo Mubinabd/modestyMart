@@ -24,7 +24,7 @@ func NewProductRepo(db *sql.DB) *ProductRepo {
 func (p *ProductRepo) CreateProduct(req *pb.CreateProductReq) (*pb.Void, error) {
 	id := uuid.NewString()
 
-	query := `INERT INTO products 
+	query := `INSERT INTO products 
 		(id, name, description, price, stock, category_id,image_url) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
@@ -117,7 +117,7 @@ func (p *ProductRepo) GetProduct(req *pb.GetById) (*pb.Products, error) {
 	FROM
 		products p
 	LEFT JOIN
-		categories c
+		category c
 	ON
 		p.category_id = c.id
 	WHERE
@@ -165,7 +165,7 @@ func (p *ProductRepo) ListAllProducts(req *pb.ListAllProductsReq) (*pb.ListAllPr
 	FROM
 		products p
 	LEFT JOIN
-		categories c
+		category c
 	ON
 		p.category_id = c.id
 	WHERE
@@ -178,17 +178,6 @@ func (p *ProductRepo) ListAllProducts(req *pb.ListAllProductsReq) (*pb.ListAllPr
 	if req.Name != "" {
 		filters = append(filters, fmt.Sprintf("name = $%d", argCount))
 		args = append(args, req.Name)
-		argCount++
-	}
-
-	if req.Stock != 0 {
-		filters = append(filters, fmt.Sprintf("stock = $%d", argCount))
-		args = append(args, req.Stock)
-		argCount++
-	}
-	if req.Price != 0 {
-		filters = append(filters, fmt.Sprintf("price = $%d", argCount))
-		args = append(args, req.Price)
 		argCount++
 	}
 
@@ -243,7 +232,6 @@ func (p *ProductRepo) ListAllProducts(req *pb.ListAllProductsReq) (*pb.ListAllPr
 }
 
 func (p *ProductRepo) GetCategory(req *pb.GetCategoryReq) (*pb.GetCategoryRes, error) {
-
 	query := `
 	SELECT
 		p.id,
@@ -260,7 +248,7 @@ func (p *ProductRepo) GetCategory(req *pb.GetCategoryReq) (*pb.GetCategoryRes, e
 	FROM
 		products p
 	LEFT JOIN
-		categories c
+		category c
 	ON
 		p.category_id = c.id
 	WHERE
@@ -268,10 +256,14 @@ func (p *ProductRepo) GetCategory(req *pb.GetCategoryReq) (*pb.GetCategoryRes, e
 	AND
 		p.deleted_at = 0
 	`
+
 	row := p.db.QueryRow(query, req.CategoryID)
-	var product pb.GetCategoryRes
-	product.Products = &pb.Products{}
-	product.Products.Category = &pb.Categories{}
+
+    var product pb.GetCategoryRes
+    product.Products = &pb.Products{}
+    product.Products.Category = &pb.Categories{}
+
+	// Perform the scan
 	err := row.Scan(
 		&product.Products.Id,
 		&product.Products.Name,
@@ -285,12 +277,18 @@ func (p *ProductRepo) GetCategory(req *pb.GetCategoryReq) (*pb.GetCategoryRes, e
 		&product.Products.Category.Description,
 		&product.Products.Category.CreatedAt,
 	)
+	
 	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Println("Category not found", err)
+			return nil, sql.ErrNoRows // Let the handler handle this as a 404
+		}
 		log.Println("Error while fetching product", err)
 		return nil, err
 	}
 	return &product, nil
 }
+
 
 func (p *ProductRepo) GetProductsByPriceRange(req *pb.GetProductsByPriceRangeReq) (*pb.ListAllProductsRes, error) {
 	query := `
@@ -309,7 +307,7 @@ func (p *ProductRepo) GetProductsByPriceRange(req *pb.GetProductsByPriceRangeReq
 	FROM
 		products p
 	LEFT JOIN
-		categories c
+		category c
 	ON
 		p.category_id = c.id
 	WHERE

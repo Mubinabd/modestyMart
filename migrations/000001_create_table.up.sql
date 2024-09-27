@@ -52,17 +52,6 @@ CREATE TABLE IF NOT EXISTS tokens (
     deleted_at BIGINT DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS products (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-    category VARCHAR(255) NOT NULL,
-    stock INT NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP,
-    deleted_at BIGINT DEFAULT 0
-);
 
 
 CREATE TABLE IF NOT EXISTS orders(
@@ -88,13 +77,15 @@ CREATE TABLE IF NOT EXISTS category(
 CREATE TABLE IF NOT EXISTS carts(
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
-    cart_number INT NOT NULL,
+    cart_number VARCHAR(20) NOT NULL,
     cart_name VARCHAR(255) NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
+    amount DECIMAL(12,2) NOT NULL,  -- Adjusted precision
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at BIGINT DEFAULT 0
 );
+
+
 CREATE TABLE IF NOT EXISTS payments(
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     order_id UUID NOT NULL REFERENCES orders(id),
@@ -102,6 +93,18 @@ CREATE TABLE IF NOT EXISTS payments(
     payment_method payment_method NOT NULL,
     amount INT NOT NULL,
     status status_method NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
+    deleted_at BIGINT DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS products (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    category_id UUID REFERENCES category(id),
+    stock INT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     deleted_at BIGINT DEFAULT 0

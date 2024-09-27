@@ -31,6 +31,10 @@ func (h *Handlers) CreateCart(c *gin.Context) {
 	}
 
 	input, err := json.Marshal(req)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 	err = h.Producer.ProduceMessages("create-cart", input)
 	if err != nil {
 		c.JSON(400, gin.H{

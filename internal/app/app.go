@@ -44,14 +44,15 @@ func Run(cfg *config.Config) {
 
 	// Kafka
 	brokers := []string{"localhost:9092"}
+	cm := prd.NewKafkaConsumerManager()
 	pr, err := prd.NewKafkaProducer(brokers)
 	if err != nil {
 		slog.Error("Failed to create Kafka producer:", err)
 		return
 	}
-
+	Register(brokers, cm, authService, cartService, orderService, categoryService, paymentService, productService)
 	// HTTP Server
-	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService,cartService, rdb, &pr)
+	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService, cartService, rdb, &pr)
 
 	router := a.NewGin(h)
 	router.SetTrustedProxies(nil)

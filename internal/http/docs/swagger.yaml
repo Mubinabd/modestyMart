@@ -7,7 +7,7 @@ definitions:
       cart_name:
         type: string
       cart_number:
-        type: integer
+        type: string
       created_at:
         type: string
       id:
@@ -40,7 +40,7 @@ definitions:
       cart_name:
         type: string
       cart_number:
-        type: integer
+        type: string
       user_id:
         type: string
     type: object
@@ -999,10 +999,6 @@ paths:
         in: query
         name: status
         type: integer
-      - description: Quantity
-        in: query
-        name: quantity
-        type: integer
       - description: Limit
         in: query
         name: limit
@@ -1207,11 +1203,11 @@ paths:
       summary: Get Product
       tags:
       - Product
-  /v1/product/by-category/{id}:
+  /v1/product/by-category/{category_id}:
     get:
       consumes:
       - application/json
-      description: Get an Product by User ID
+      description: Get a Product by Category ID
       parameters:
       - description: Category ID
         in: path
@@ -1239,7 +1235,7 @@ paths:
             type: string
       security:
       - BearerAuth: []
-      summary: Get Product By User ID
+      summary: Get Product By Category ID
       tags:
       - Product
   /v1/product/by-range:
@@ -1354,14 +1350,6 @@ paths:
       - description: Name
         in: query
         name: name
-        type: integer
-      - description: Price
-        in: query
-        name: price
-        type: integer
-      - description: Stock
-        in: query
-        name: stock
         type: integer
       - description: Limit
         in: query

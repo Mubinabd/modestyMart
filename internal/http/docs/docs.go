@@ -944,12 +944,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Quantity",
-                        "name": "quantity",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
                         "description": "Limit",
                         "name": "limit",
                         "in": "query"
@@ -1261,14 +1255,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/product/by-category/{id}": {
+        "/v1/product/by-category/{category_id}": {
             "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get an Product by User ID",
+                "description": "Get a Product by Category ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -1278,7 +1272,7 @@ const docTemplate = `{
                 "tags": [
                     "Product"
                 ],
-                "summary": "Get Product By User ID",
+                "summary": "Get Product By Category ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -1501,18 +1495,6 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Name",
                         "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Price",
-                        "name": "price",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Stock",
-                        "name": "stock",
                         "in": "query"
                     },
                     {
@@ -1937,7 +1919,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "cart_number": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "created_at": {
                     "type": "string"
@@ -1988,7 +1970,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "cart_number": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "user_id": {
                     "type": "string"

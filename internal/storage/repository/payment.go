@@ -22,48 +22,47 @@ func NewPaymentRepo(db *sql.DB) *PaymentRepo {
 
 func (pr *PaymentRepo) CreatePayment(req *pb.CreatePaymentReq) (*pb.Void, error) {
 	id := uuid.NewString()
-	tx, err := pr.db.Begin() 
+	tx, err := pr.db.Begin()
 	if err != nil {
 		log.Println("Error starting transaction", err)
 		return nil, err
 	}
 
-	var currentAmount int32
-	cartQuery := `SELECT amount FROM cart WHERE card_id = $1`
+	var currentAmount float64 // Change to float64
+	cartQuery := `SELECT amount FROM carts WHERE id = $1`
 	err = tx.QueryRow(cartQuery, req.CardId).Scan(&currentAmount)
 	if err != nil {
 		log.Println("Error fetching current amount from cart", err)
-		tx.Rollback() 
+		tx.Rollback()
 		return nil, err
 	}
 
-	if currentAmount < req.Amount {
+	if currentAmount < float64(req.Amount) { // Ensure comparison is with the same type
 		log.Println("Insufficient amount in the cart")
 		tx.Rollback()
 		return nil, fmt.Errorf("insufficient amount in the cart")
 	}
-	newAmount := currentAmount - req.Amount
 
-	updateCartQuery := `UPDATE cart SET amount = $1 WHERE card_id = $2`
-	_, err = tx.Exec(updateCartQuery, newAmount, req.CardId)
+	newAmount := currentAmount - float64(req.Amount) // Update logic to handle float64
+
+	updateCartQuery := `UPDATE carts SET amount = $1 WHERE id = $2` // Changed card_id to id
+	_, err = tx.Exec(updateCartQuery, newAmount, req.CardId)        // Make sure req.CardId is correct
 	if err != nil {
 		log.Println("Error updating cart amount", err)
-		tx.Rollback() 
+		tx.Rollback()
 		return nil, err
 	}
-
 	insertPaymentQuery :=
 		`INSERT INTO payments
-		(id, payment_method, amount, order_id, card_id, status) 
-		VALUES ($1, $2, $3, $4, $5, $6)`
+    (id, payment_method, amount, order_id, cart_id, status) 
+    VALUES ($1, $2, $3, $4, $5, $6)`
 
 	_, err = tx.Exec(insertPaymentQuery, id, req.PaymentMethod, req.Amount, req.OrderID, req.CardId, req.Status)
 	if err != nil {
 		log.Println("Error inserting payment", err)
-		tx.Rollback() 
+		tx.Rollback()
 		return nil, err
 	}
-
 	err = tx.Commit()
 	if err != nil {
 		log.Println("Error committing transaction", err)
@@ -73,9 +72,10 @@ func (pr *PaymentRepo) CreatePayment(req *pb.CreatePaymentReq) (*pb.Void, error)
 	return &pb.Void{}, nil
 }
 
-
 func (pr *PaymentRepo) GetPayment(req *pb.GetById) (*pb.Payment, error) {
 	var payment pb.Payment
+	var order pb.OrdersRes // Define a variable for the order
+
 	query := `SELECT
 		p.id,
 		p.payment_method, 
@@ -91,7 +91,7 @@ func (pr *PaymentRepo) GetPayment(req *pb.GetById) (*pb.Payment, error) {
 		o.status, 
 		o.created_at
 	FROM
-		payments
+		payments p
 	LEFT JOIN
 		orders o
 	ON
@@ -109,20 +109,26 @@ func (pr *PaymentRepo) GetPayment(req *pb.GetById) (*pb.Payment, error) {
 		&payment.Status,
 		&payment.CartId,
 		&payment.CreatedAt,
-		&payment.Order.Id,
-		&payment.Order.UserID,
-		&payment.Order.ProductID,
-		&payment.Order.TotalPrice,
-		&payment.Order.Quantity,
-		&payment.Order.Status,
-		&payment.Order.CreatedAt,
+		&order.Id,
+		&order.UserID,
+		&order.ProductID,
+		&order.TotalPrice,
+		&order.Quantity,
+		&order.Status,
+		&order.CreatedAt,
 	)
+
 	if err != nil {
 		log.Println("Error while getting payment", err)
 		return nil, err
 	}
+
+	// Assign the initialized order to the payment
+	payment.Order = &order
+
 	return &payment, nil
 }
+
 
 func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRes, error) {
 
@@ -141,7 +147,7 @@ func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRe
 		o.status, 
 		o.created_at
 	FROM
-		payments
+		payments p
 	LEFT JOIN
 		orders o
 	ON
@@ -190,6 +196,9 @@ func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRe
 	payments := []*pb.Payment{}
 	for rows.Next() {
 		var payment pb.Payment
+		// Initialize the Order field to avoid nil pointer dereference
+		payment.Order = &pb.OrdersRes{}
+
 		err := rows.Scan(
 			&payment.Id,
 			&payment.PaymentMethod,
@@ -197,7 +206,7 @@ func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRe
 			&payment.Status,
 			&payment.CartId,
 			&payment.CreatedAt,
-			&payment.Order.Id,
+			&payment.Order.Id, // This could panic if Order is nil
 			&payment.Order.UserID,
 			&payment.Order.ProductID,
 			&payment.Order.TotalPrice,
@@ -211,6 +220,7 @@ func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRe
 		}
 		payments = append(payments, &payment)
 	}
+
 	count := len(payments)
 
 	return &pb.ListPaymentsRes{

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"strconv"
@@ -109,8 +110,6 @@ func (h *Handlers) UpdateProduct(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param name query int false "Name"
-// @Param price query int false "Price"
-// @Param stock query int false "Stock"
 // @Param limit query int false "Limit"
 // @Param offset query int false "Offset"
 // @Success 200 {object} pb.ListAllProductsRes "List of Products"
@@ -122,23 +121,6 @@ func (h *Handlers) ListProducts(c *gin.Context) {
 
 	name := c.Query("name")
 	filter.Name = name
-	priceSTR := c.Query("price")
-	price, err := strconv.Atoi(priceSTR)
-
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-	filter.Price = float32(price)
-
-	stockSTR := c.Query("stock")
-	stock, err := strconv.Atoi(stockSTR)
-
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-	filter.Stock = int32(stock)
 
 	f := pb.Pagination{}
 	filter.Pagination = &f
@@ -194,8 +176,8 @@ func (h *Handlers) DeleteProduct(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "Product deleted successfully"})
 }
 
-// @Summary Get Product By User ID
-// @Description Get an Product by User ID
+// @Summary Get Product By Category ID
+// @Description Get a Product by Category ID
 // @Tags Product
 // @Accept json
 // @Produce json
@@ -205,21 +187,31 @@ func (h *Handlers) DeleteProduct(c *gin.Context) {
 // @Failure 400 {string} string "Invalid request"
 // @Failure 404 {string} string "Product not found"
 // @Failure 500 {string} string "Internal server error"
-// @Router /v1/product/by-category/{id} [get]
+// @Router /v1/product/by-category/{category_id} [get]
 func (h *Handlers) GetCategories(c *gin.Context) {
-	req := pb.GetCategoryReq{}
-	category_id := c.Param("category_id")
+	categoryID := c.Param("category_id")
 
-	req.CategoryID = category_id
+	if categoryID == "" {
+		c.JSON(400, gin.H{"error": "category ID cannot be empty"})
+		return
+	}
+
+	req := pb.GetCategoryReq{
+		CategoryID: categoryID,
+	}
 
 	res, err := h.Product.GetCategory(context.Background(), &req)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		// Differentiate error types
+		if err == sql.ErrNoRows {
+			c.JSON(404, gin.H{"error": "Category not found"})
+		} else {
+			c.JSON(500, gin.H{"error": "Internal server error"})
+		}
 		return
 	}
 
 	c.JSON(200, res)
-
 }
 
 // @Summary Get Product By Product ID

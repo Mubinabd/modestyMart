@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -10,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	t "github.com/Mubinabd/modestyMart/internal/pkg/token"
 	auth "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
+	t "github.com/Mubinabd/modestyMart/internal/pkg/token"
 	"github.com/go-redis/redis/v8"
 	"golang.org/x/exp/slog"
 
@@ -96,20 +95,12 @@ func (h *Handlers) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	input, err := json.Marshal(req)
+	_, err = h.Auth.Register(context.Background(), req)
 	if err != nil {
-		slog.Error("failed to marshal JSON: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
-		return
-	}
-
-	err = h.Producer.ProduceMessages("create", input)
-	if err != nil {
-		slog.Error("failed to produce message: %v", err)
+		slog.Error("failed to register user: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
-
 	// Add the new user to the map
 	registeredUsers.Lock()
 	registeredUsers.users[req.Email] = struct{}{}
@@ -310,7 +301,7 @@ func (h *Handlers) GetAllUsers(c *gin.Context) {
 	req := &auth.ListUserReq{
 		Username: username,
 		FullName: fullName,
-		Pagination:  &auth.Pagination{
+		Pagination: &auth.Pagination{
 			Limit:  int32(limitValue),
 			Offset: int32(offsetValue),
 		},

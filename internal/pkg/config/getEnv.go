@@ -45,7 +45,7 @@ func Load() Config {
 	config.PostgresPassword = cast.ToString(getOrReturnDefaultValue("POSTGRES_PASSWORD", "1234"))
 	config.PostgresDatabase = cast.ToString(getOrReturnDefaultValue("POSTGRES_DATABASE", "modestymart"))
 	config.LogPath = cast.ToString(getOrReturnDefaultValue("LOG_PATH", "logs/info.log"))
-	config.KafkaUrl = cast.ToString(getOrReturnDefaultValue("KAFKA_URL", "9091"))
+	config.KafkaUrl = cast.ToString(getOrReturnDefaultValue("KAFKA_URL", "localhost:9092"))
 	config.BucketName = cast.ToString(getOrReturnDefaultValue("BUCKET_NAME", "modestymart"))
 	config.MinioUrl = cast.ToString(getOrReturnDefaultValue("MINIO_URL", "q"))
 	config.MinioUser = cast.ToString(getOrReturnDefaultValue("MINIO_USER", "q"))

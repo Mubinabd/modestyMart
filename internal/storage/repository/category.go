@@ -24,7 +24,7 @@ func NewCategoryRepo(db *sql.DB) *CategoryRepo {
 func (c *CategoryRepo) CreateCategory(req *pb.CreateCategoryReq) (*pb.Void, error) {
 
 	id := uuid.NewString()
-	query := `INSERT INTO categories 
+	query := `INSERT INTO category 
 	(id, name, description, created_at) VALUES ($1, $2, $3, $4)`
 
 	_, err := c.db.Exec(query, id, req.Name, req.Description, time.Now())
@@ -43,7 +43,7 @@ func (c *CategoryRepo) GetCategory(req *pb.GetById) (*pb.Categories, error) {
 		description,
 		created_at
 	FROM
-		categories
+		category
 	WHERE
 		id = $1
 	AND
@@ -72,7 +72,7 @@ func (c *CategoryRepo) ListCategories(req *pb.ListAllCategoriesReq) (*pb.ListCat
 		description,
 		created_at
 	FROM
-		categories
+		category
 	WHERE
 		deleted_at = 0
 	`
@@ -140,7 +140,7 @@ func (c *CategoryRepo) UpdateCategory(req *pb.UpdateCategoryReq) (*pb.Void, erro
 	args = append(args, time.Now())
 	conditions = append(conditions, fmt.Sprintf("updated_at = $%d", len(args)))
 
-	query := `UPDATE categories SET ` + strings.Join(conditions, ", ") + ` WHERE id = $` + fmt.Sprintf("%d", len(args)+1)
+	query := `UPDATE category SET ` + strings.Join(conditions, ", ") + ` WHERE id = $` + fmt.Sprintf("%d", len(args)+1)
 	args = append(args, req.Id)
 
 	_, err := c.db.Exec(query, args...)
@@ -155,7 +155,7 @@ func (c *CategoryRepo) UpdateCategory(req *pb.UpdateCategoryReq) (*pb.Void, erro
 func (c *CategoryRepo) DeleteCategory(req *pb.GetById) (*pb.Void, error) {
 	query := `
 	UPDATE 
-		categories
+		category
 	SET
 		deleted_at = extract(epoch from now())
 	WHERE

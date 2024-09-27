@@ -23,16 +23,16 @@ func NewOrderRepo(db *sql.DB) *OrderRepo {
 
 func (o *OrderRepo) CreateOrder(req *pb.CreateOrderReq) (*pb.Void, error) {
 	id := uuid.NewString()
+	query := `
+	INSERT INTO orders (id,user_id, product_id, quantity, total_price, status)
+	VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
-	query := `INERT INTO orders 
-		(id, user_id, product_id, total_price,status) 
-		VALUES ($1, $2, $3, $4, $5)`
-
-	_, err := o.db.Exec(query, id, req.UserID, req.ProductID, req.TotalPrice, req.Status)
+	_, err := o.db.Exec(query, id,req.UserID, req.ProductID, req.Quantity, req.TotalPrice, req.Status)
 	if err != nil {
 		log.Println("Error while creating order", err)
-		return nil, err
+		return nil,err
 	}
+
 	return &pb.Void{}, nil
 }
 
@@ -56,7 +56,7 @@ func (o *OrderRepo) UpdateOrder(req *pb.UpdateOrderReq) (*pb.Void, error) {
 		args = append(args, req.Order.Status)
 		conditions = append(conditions, fmt.Sprintf("status = $%d", len(args)))
 	}
-	if req.Order.Quantity != 0  {
+	if req.Order.Quantity != 0 {
 		args = append(args, req.Order.Quantity)
 		conditions = append(conditions, fmt.Sprintf("quantity = $%d", len(args)))
 	}
@@ -100,13 +100,13 @@ func (o *OrderRepo) GetOrder(req *pb.GetById) (*pb.Orders, error) {
 	SELECT
 		o.id, 
 		o.total_price, 
-		o.quantity, 
 		o.status, 
+		o.quantity, 
 		o.created_at,
 		u.id,
 		u.username,
 		u.email,
-		u.fullname,
+		u.full_name,
 		u.date_of_birth,
 		p.id,
 		p.name,
@@ -117,7 +117,7 @@ func (o *OrderRepo) GetOrder(req *pb.GetById) (*pb.Orders, error) {
 		p.image_url,
 		p.created_at
 	FROM
-		orders
+		orders o
 	LEFT JOIN
 		users u
 	ON
@@ -129,13 +129,14 @@ func (o *OrderRepo) GetOrder(req *pb.GetById) (*pb.Orders, error) {
 	WHERE
 		o.id = $1
 	AND
-		deleted_at = 0
+		o.deleted_at = 0
 	`
 	var order pb.Orders
 	order.User = &pb.UserRes{}
 	order.Product = &pb.ProductsRes{}
 	err := o.db.QueryRow(query, req.Id).
-		Scan(&order.Id,
+		Scan(
+			&order.Id,
 			&order.TotalPrice,
 			&order.Status,
 			&order.Quantity,
@@ -166,13 +167,13 @@ func (o *OrderRepo) ListAllOrders(req *pb.ListOrdersReq) (*pb.ListOrdersRes, err
 	SELECT
 		o.id, 
 		o.total_price, 
-		o.quantity, 
 		o.status, 
+		o.quantity, 
 		o.created_at,
 		u.id,
 		u.username,
 		u.email,
-		u.fullname,
+		u.full_name,
 		u.date_of_birth,
 		p.id,
 		p.name,
@@ -183,7 +184,7 @@ func (o *OrderRepo) ListAllOrders(req *pb.ListOrdersReq) (*pb.ListOrdersRes, err
 		p.image_url,
 		p.created_at
 	FROM
-		orders
+		orders o
 	LEFT JOIN
 		users u
 	ON
@@ -193,7 +194,7 @@ func (o *OrderRepo) ListAllOrders(req *pb.ListOrdersReq) (*pb.ListOrdersRes, err
 	ON
 		o.product_id = p.id
 	WHERE
-		deleted_at = 0
+		o.deleted_at = 0
 	`
 	var args []interface{}
 	argCount := 1
@@ -202,12 +203,6 @@ func (o *OrderRepo) ListAllOrders(req *pb.ListOrdersReq) (*pb.ListOrdersRes, err
 	if req.Status != "" {
 		filters = append(filters, fmt.Sprintf("status = $%d", argCount))
 		args = append(args, req.Status)
-		argCount++
-	}
-
-	if req.Quantity != 0 {
-		filters = append(filters, fmt.Sprintf("quantity = $%d", argCount))
-		args = append(args, req.Quantity)
 		argCount++
 	}
 
@@ -237,7 +232,8 @@ func (o *OrderRepo) ListAllOrders(req *pb.ListOrdersReq) (*pb.ListOrdersRes, err
 		var order pb.Orders
 		order.User = &pb.UserRes{}
 		order.Product = &pb.ProductsRes{}
-		err := rows.Scan(&order.Id,
+		err := rows.Scan(
+			&order.Id,
 			&order.TotalPrice,
 			&order.Status,
 			&order.Quantity,
@@ -274,13 +270,13 @@ func (o *OrderRepo) GetOrderByUserID(req *pb.OrderByUserId) (*pb.GetOrdersRes, e
 	SELECT
 		o.id, 
 		o.total_price, 
-		o.quantity, 
 		o.status, 
+		o.quantity, 
 		o.created_at,
 		u.id,
 		u.username,
 		u.email,
-		u.fullname,
+		u.full_name,
 		u.date_of_birth,
 		p.id,
 		p.name,
@@ -291,7 +287,7 @@ func (o *OrderRepo) GetOrderByUserID(req *pb.OrderByUserId) (*pb.GetOrdersRes, e
 		p.image_url,
 		p.created_at
 	FROM
-		orders
+		orders o
 	LEFT JOIN
 		users u
 	ON
@@ -301,7 +297,7 @@ func (o *OrderRepo) GetOrderByUserID(req *pb.OrderByUserId) (*pb.GetOrdersRes, e
 	ON
 		o.product_id = p.id
 	WHERE
-		deleted_at = 0
+		o.deleted_at = 0
 	AND
 		u.id = $1
 	`
@@ -347,19 +343,19 @@ func (o *OrderRepo) GetOrderByUserID(req *pb.OrderByUserId) (*pb.GetOrdersRes, e
 	}, nil
 }
 
-func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrdersRes, error) {	
+func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrdersRes, error) {
 
 	query := `
 	SELECT
 		o.id, 
 		o.total_price, 
-		o.quantity, 
 		o.status, 
+		o.quantity, 
 		o.created_at,
 		u.id,
 		u.username,
 		u.email,
-		u.fullname,
+		u.full_name,
 		u.date_of_birth,
 		p.id,
 		p.name,
@@ -370,7 +366,7 @@ func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrders
 		p.image_url,
 		p.created_at
 	FROM		
-		orders
+		orders o
 	LEFT JOIN
 		users u
 	ON
@@ -380,7 +376,7 @@ func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrders
 	ON
 		o.product_id = p.id
 	WHERE
-		deleted_at = 0
+		o.deleted_at = 0
 	AND
 		p.id = $1
 	`
@@ -390,12 +386,13 @@ func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrders
 		return nil, err
 	}
 	defer rows.Close()
-	var orders []*pb.Orders	
+	var orders []*pb.Orders
 	for rows.Next() {
 		var order pb.Orders
 		order.User = &pb.UserRes{}
 		order.Product = &pb.ProductsRes{}
-		err := rows.Scan(&order.Id,
+		err := rows.Scan(
+			&order.Id,
 			&order.TotalPrice,
 			&order.Status,
 			&order.Quantity,

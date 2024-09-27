@@ -109,7 +109,6 @@ func (h *Handlers) UpdateOrder(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param status query int false "Status"
-// @Param quantity query int false "Quantity"
 // @Param limit query int false "Limit"
 // @Param offset query int false "Offset"
 // @Success 200 {object} pb.ListOrdersRes "List of Orders"
@@ -121,15 +120,7 @@ func (h *Handlers) ListOrders(c *gin.Context) {
 
 	status := c.Query("status")
 	filter.Status = status
-	quantitySTR := c.Query("quantity")
-	quantity, err := strconv.Atoi(quantitySTR)
-
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-	filter.Quantity = int32(quantity)
-
+	
 	f := pb.Pagination{}
 	filter.Pagination = &f
 

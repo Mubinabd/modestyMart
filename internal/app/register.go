@@ -1,81 +1,173 @@
-
 package app
 
 import (
-	"errors"
+	"context"
+	"log"
 
-	"github.com/Mubinabd/modestyMart/internal/pkg/config"
-	"github.com/Mubinabd/modestyMart/internal/usecase/kafka"
+	pb "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
+	"github.com/Mubinabd/modestyMart/internal/usecase/service"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
-func Register(h *KafkaHandler, cfg *config.Config) error {
+func UserRegister(u *service.AuthService) func(message []byte) {
+	return func(message []byte) {
 
-	brokers := []string{cfg.KafkaUrl}
-	kcm := kafka.NewKafkaConsumerManager()
+		//unmarshal the message
+		var cer pb.RegisterReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
+		}
 
-	if err := kcm.RegisterConsumer(brokers, "create", "create-id", h.Register()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'create' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+		_, err := u.Register(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
 		}
+		log.Printf("Register User: %+v")
 	}
-	
-	if err := kcm.RegisterConsumer(brokers, "create-cat", "create-cat-id", h.CreateCategory()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'create-cat' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+}
+func CreateCategory(u *service.CategoryService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.CreateCategoryReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
 		}
-	}
-	if err := kcm.RegisterConsumer(brokers, "update-cat", "update-cat-id", h.UpdateCategory()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'update-cat' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+
+		res, err := u.CreateCategory(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
 		}
+		log.Printf("create category: %+v", res)
 	}
-	if err := kcm.RegisterConsumer(brokers, "create-pay", "create-pay-id", h.CreatePayment()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'create-pay' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+}
+func UpdateCategory(u *service.CategoryService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.UpdateCategoryReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
 		}
-	}
-	if err := kcm.RegisterConsumer(brokers, "create-order", "order-id", h.CreateOrder()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'order' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+
+		res, err := u.UpdateCategory(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
 		}
+		log.Printf("update category: %+v", res)
 	}
-	if err := kcm.RegisterConsumer(brokers, "update-order", "update-order-id", h.UpdateOrder()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'update-order' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+}
+func CreatePayment(u *service.PaymentService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.CreatePaymentReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
 		}
-	}
-	if err := kcm.RegisterConsumer(brokers, "create-product", "create-product-id", h.CreateProduct()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'create-product' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+
+		res, err := u.CreatePayment(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
 		}
+		log.Printf("flash sale product: %+v", res)
 	}
-	if err := kcm.RegisterConsumer(brokers, "update-product", "update-product-id", h.UpdateProduct()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'update-product' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+}
+func CreateOrder(u *service.OrderService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.CreateOrderReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
 		}
-	}
-	if err := kcm.RegisterConsumer(brokers, "create-cart", "create-cart-id", h.CreateCart()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'create-cart' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
+
+		res, err := u.CreateOrder(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
 		}
+		log.Printf("create order: %+v", res)
 	}
-	return nil
+}
+func UpdateOrder(u *service.OrderService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.UpdateOrderReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
+		}
+
+		res, err := u.UpdateOrder(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		log.Printf("update order: %+v", res)
+	}
+}
+func CreateProduct(u *service.ProductService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.CreateProductReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
+		}
+
+		res, err := u.CreateProduct(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		log.Printf("create product: %+v", res)
+	}
+}
+func UpdateProduct(u *service.ProductService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.UpdateProductReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
+		}
+
+		res, err := u.UpdateProduct(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		log.Printf("update product: %+v", res)
+	}
+}
+func CreateCart(u *service.CartService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var cer pb.CreateCartReq
+		if err := protojson.Unmarshal(message, &cer); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
+		}
+
+		res, err := u.CreateCart(context.Background(), &cer)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		log.Printf("create cart: %+v", res)
+	}
 }
