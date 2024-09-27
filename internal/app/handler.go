@@ -37,44 +37,6 @@ func (h *KafkaHandler) Register() func(message []byte) {
 		log.Printf("Register User: %+v", res)
 	}
 }
-func (h *KafkaHandler) EditProfile() func(message []byte) {
-	return func(message []byte) {
-
-		//unmarshal the message
-		var cer pb.UserRes
-		if err := protojson.Unmarshal(message, &cer); err != nil {
-			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
-			return
-		}
-
-		res, err := h.user.EditProfile(context.Background(), &cer)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		log.Printf("Edit profile: %+v", res)
-	}
-}
-
-func (h *KafkaHandler) EditSetting() func(message []byte) {
-	return func(message []byte) {
-
-		//unmarshal the message
-		var cer pb.SettingReq
-		if err := protojson.Unmarshal(message, &cer); err != nil {
-			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
-			return
-		}
-
-		res, err := h.user.EditSetting(context.Background(), &cer)
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		log.Printf("Edit Setting: %+v", res)
-	}
-}
-
 func (h *KafkaHandler) CreateCategory() func(message []byte) {
 	return func(message []byte) {
 

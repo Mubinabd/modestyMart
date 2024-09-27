@@ -20,20 +20,6 @@ func Register(h *KafkaHandler, cfg *config.Config) error {
 			return errors.New("error registering consumer:" + err.Error())
 		}
 	}
-	if err := kcm.RegisterConsumer(brokers, "update", "update-id", h.EditProfile()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'update' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
-		}
-	}
-	if err := kcm.RegisterConsumer(brokers, "edit", "edit", h.EditSetting()); err != nil {
-		if err == kafka.ErrConsumerAlreadyExists {
-			return errors.New("consumer for topic 'edit' already exists")
-		} else {
-			return errors.New("error registering consumer:" + err.Error())
-		}
-	}
 	
 	if err := kcm.RegisterConsumer(brokers, "create-cat", "create-cat-id", h.CreateCategory()); err != nil {
 		if err == kafka.ErrConsumerAlreadyExists {

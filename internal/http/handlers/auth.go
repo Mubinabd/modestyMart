@@ -103,7 +103,7 @@ func (h *Handlers) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	err = h.Producer.ProduceMessages("reg-user", input)
+	err = h.Producer.ProduceMessages("create", input)
 	if err != nil {
 		slog.Error("failed to produce message: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
