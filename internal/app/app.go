@@ -24,7 +24,7 @@ func Run(cfg *config.Config) {
 	slog.Info("Connected to Postgres")
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis_auth:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -43,7 +43,7 @@ func Run(cfg *config.Config) {
 	cartService := s.NewCartService(db)
 
 	// Kafka
-	brokers := []string{"localhost:9092"}
+	brokers := []string{"kafka:9092"}
 	cm := prd.NewKafkaConsumerManager()
 	pr, err := prd.NewKafkaProducer(brokers)
 	if err != nil {
