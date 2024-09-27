@@ -277,7 +277,7 @@ func isValidEmail(email string) bool {
 // @Success 200 {object} auth.ListUserRes
 // @Failure 400 {object} string "Bad Request"
 // @Failure 500 {object} string "Internal Server Error"
-// @Router /developers [get]
+// @Router /users [get]
 func (h *Handlers) GetAllUsers(c *gin.Context) {
 	limit := c.Query("limit")
 	offset := c.Query("offset")
