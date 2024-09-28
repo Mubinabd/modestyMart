@@ -2,12 +2,14 @@ package app
 
 import (
 	"context"
+	"log"
 
 	a "github.com/Mubinabd/modestyMart/internal/http"
 	"github.com/Mubinabd/modestyMart/internal/http/handlers"
 	"github.com/Mubinabd/modestyMart/internal/pkg/config"
 	"github.com/Mubinabd/modestyMart/internal/storage/repository"
 	prd "github.com/Mubinabd/modestyMart/internal/usecase/kafka"
+	"github.com/Mubinabd/modestyMart/internal/usecase/minio"
 	s "github.com/Mubinabd/modestyMart/internal/usecase/service"
 	"github.com/go-redis/redis/v8"
 	"golang.org/x/exp/slog"
@@ -23,6 +25,12 @@ func Run(cfg *config.Config) {
 	defer db.Db.Close()
 	slog.Info("Connected to Postgres")
 
+	// connect to minio
+	minio, err := minio.MinIOConnect(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "redis_auth:6379",
 		Password: "",
@@ -36,7 +44,7 @@ func Run(cfg *config.Config) {
 
 	authService := s.NewAuthService(db)
 	userService := s.NewUserService(db)
-	productService := s.NewProductService(db)
+	productService := s.NewProductService(db,minio)
 	paymentService := s.NewPaymentService(db)
 	orderService := s.NewOrderService(db)
 	categoryService := s.NewCategoryService(db)
