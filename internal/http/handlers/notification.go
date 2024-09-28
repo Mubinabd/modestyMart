@@ -16,6 +16,7 @@ import (
 // @Tags notifications
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param notification body pb.NotificationCreate true "Notification details"
 // @Success 201 {object} pb.Void
 // @Failure 400 {object} string "Bad Request"
@@ -49,6 +50,7 @@ func (h *Handlers) CreateNotification(c *gin.Context) {
 // @Tags notifications
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param id path string true "Notification ID"
 // @Param notification body pb.NotificationUpt true "Notification details"
 // @Success 200 {object} pb.Void
@@ -84,6 +86,7 @@ func (h *Handlers) UpdateNotification(c *gin.Context) {
 // @Tags notifications
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param id path string true "Notification ID"
 // @Success 200 {object} pb.Void
 // @Failure 404 {object} string "Not Found"
@@ -108,6 +111,7 @@ func (h *Handlers) DeleteNotification(c *gin.Context) {
 // @Tags notifications
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param reciever_id query string false "Receiver ID"
 // @Param status      query string false "Notification Status"
 // @Param sender_id   query string false "Sender ID"
@@ -149,6 +153,7 @@ func (h *Handlers) ListNotifications(c *gin.Context) {
 // @Tags notifications
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param id path string true "Notification ID"
 // @Success 200 {object} pb.NotificationGet
 // @Failure 404 {object} string "Not Found"
@@ -173,6 +178,7 @@ func (h *Handlers) GetNotification(c *gin.Context) {
 // @Tags notifications
 // @Accept json
 // @Produce json
+// @Security BearerAuth
 // @Param notification body pb.NotificationMessage true "Notification message"
 // @Success 200 {object} pb.Void
 // @Failure 400 {object} string "Bad Request"

@@ -540,6 +540,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: List notifications with filters
       tags:
       - notifications
@@ -946,6 +948,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Get a notification by ID
       tags:
       - notifications
@@ -976,6 +980,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Create a new notification
       tags:
       - notifications
@@ -1005,6 +1011,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Delete a notification by ID
       tags:
       - notifications
@@ -1035,6 +1043,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Send a notification to all users
       tags:
       - notifications
@@ -1074,6 +1084,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Update notification details by ID
       tags:
       - notifications

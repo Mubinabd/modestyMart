@@ -114,6 +114,11 @@ const docTemplate = `{
         },
         "/notifications": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of notifications with optional filters",
                 "consumes": [
                     "application/json"
@@ -776,6 +781,11 @@ const docTemplate = `{
         },
         "/v1/notification/create": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new notification with the provided details",
                 "consumes": [
                     "application/json"
@@ -822,6 +832,11 @@ const docTemplate = `{
         },
         "/v1/notification/delete/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete a specific notification by its ID",
                 "consumes": [
                     "application/json"
@@ -866,6 +881,11 @@ const docTemplate = `{
         },
         "/v1/notification/notify-all": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Send a notification message to all users in the specified group",
                 "consumes": [
                     "application/json"
@@ -912,6 +932,11 @@ const docTemplate = `{
         },
         "/v1/notification/update/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update the details of a specific notification by its ID",
                 "consumes": [
                     "application/json"
@@ -971,6 +996,11 @@ const docTemplate = `{
         },
         "/v1/notification/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a specific notification by its ID",
                 "consumes": [
                     "application/json"
