@@ -185,6 +185,59 @@ definitions:
       username:
         type: string
     type: object
+  genproto.NotificationCreate:
+    properties:
+      Message:
+        type: string
+      RecieverId:
+        type: string
+      SenderId:
+        type: string
+    type: object
+  genproto.NotificationGet:
+    properties:
+      CreatedAt:
+        type: string
+      Id:
+        type: string
+      Message:
+        type: string
+      SenderId:
+        type: string
+      Status:
+        type: string
+      UserId:
+        type: string
+    type: object
+  genproto.NotificationList:
+    properties:
+      Limit:
+        type: integer
+      Notifications:
+        items:
+          $ref: '#/definitions/genproto.NotificationGet'
+        type: array
+      Offset:
+        type: integer
+      TotalCount:
+        type: integer
+    type: object
+  genproto.NotificationMessage:
+    properties:
+      Message:
+        type: string
+      SenderId:
+        type: string
+      TargetGroup:
+        type: string
+    type: object
+  genproto.NotificationUpt:
+    properties:
+      Message:
+        type: string
+      Status:
+        type: string
+    type: object
   genproto.Orders:
     properties:
       created_at:
@@ -376,6 +429,8 @@ definitions:
       Username:
         type: string
     type: object
+  genproto.Void:
+    type: object
 info:
   contact: {}
   description: API for Instant Delivery resources
@@ -444,6 +499,50 @@ paths:
       summary: Login a user
       tags:
       - auth
+  /notifications:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of notifications with optional filters
+      parameters:
+      - description: Receiver ID
+        in: query
+        name: reciever_id
+        type: string
+      - description: Notification Status
+        in: query
+        name: status
+        type: string
+      - description: Sender ID
+        in: query
+        name: sender_id
+        type: string
+      - description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.NotificationList'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List notifications with filters
+      tags:
+      - notifications
   /register:
     post:
       consumes:
@@ -821,6 +920,163 @@ paths:
       summary: Update Category
       tags:
       - Category
+  /v1/notification/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific notification by its ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.NotificationGet'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get a notification by ID
+      tags:
+      - notifications
+  /v1/notification/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new notification with the provided details
+      parameters:
+      - description: Notification details
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.NotificationCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/genproto.Void'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create a new notification
+      tags:
+      - notifications
+  /v1/notification/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific notification by its ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.Void'
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete a notification by ID
+      tags:
+      - notifications
+  /v1/notification/notify-all:
+    post:
+      consumes:
+      - application/json
+      description: Send a notification message to all users in the specified group
+      parameters:
+      - description: Notification message
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.NotificationMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.Void'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Send a notification to all users
+      tags:
+      - notifications
+  /v1/notification/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update the details of a specific notification by its ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Notification details
+        in: body
+        name: notification
+        required: true
+        schema:
+          $ref: '#/definitions/genproto.NotificationUpt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/genproto.Void'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update notification details by ID
+      tags:
+      - notifications
   /v1/order/{id}:
     get:
       consumes:
@@ -889,41 +1145,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Get Order By Product ID
-      tags:
-      - Order
-  /v1/order/by-user/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get an Order by User ID
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Order data
-          schema:
-            $ref: '#/definitions/genproto.GetOrdersRes'
-        "400":
-          description: Invalid request
-          schema:
-            type: string
-        "404":
-          description: Order not found
-          schema:
-            type: string
-        "500":
-          description: Internal server error
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Get Order By User ID
       tags:
       - Order
   /v1/order/create:

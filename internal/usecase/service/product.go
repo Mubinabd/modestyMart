@@ -3,22 +3,27 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	pb "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
 	st "github.com/Mubinabd/modestyMart/internal/storage/repository"
+	"github.com/Mubinabd/modestyMart/internal/usecase/kafka"
 	"github.com/Mubinabd/modestyMart/internal/usecase/minio"
 	pdfmaker "github.com/Mubinabd/modestyMart/internal/usecase/pdf_maker"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type ProductService struct {
-	storage st.Storage
-	minio   *minio.MinIO
+	storage  st.Storage
+	producer kafka.KafkaProducer
+	minio    *minio.MinIO
 	pb.UnimplementedProductsServiceServer
 }
 
-func NewProductService(storage *st.Storage, minio *minio.MinIO) *ProductService {
+func NewProductService(storage *st.Storage, minio *minio.MinIO,producer kafka.KafkaProducer) *ProductService {
 	return &ProductService{
 		minio:   minio,
+		producer: producer,
 		storage: *storage,
 	}
 }
@@ -61,6 +66,20 @@ func (s *ProductService) UpdateProduct(ctx context.Context, req *pb.UpdateProduc
 			return nil, errors.New("internal usecases minio upload error: " + err.Error())
 		}
 		req.Body.ImageUrl = *cer_url
+	}
+	// write to kafka
+	message := fmt.Sprintf("dear %s your certificate request has been %s", products.Name, req.Body.ImageUrl)
+	notification := pb.NotificationCreate{
+		RecieverId: products.Id,
+		Message:    message,
+	}
+	input, err := protojson.Marshal(&notification)
+	if err != nil {
+		return nil, errors.New("internal usecases protojson marshal error: " + err.Error())
+	}
+	err = s.producer.ProduceMessages("notification-create", input)
+	if err != nil {
+		return nil, errors.New("internal usecases kafka produce error: " + err.Error())
 	}
 
 	return s.storage.ProductS.UpdateProduct(req)

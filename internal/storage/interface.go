@@ -12,6 +12,7 @@ type StorageI interface {
 	Cart() CartI
 	Auth() AuthI
 	User() UserI
+	Notification() NotificationI
 }
 
 type ProductI interface {
@@ -69,3 +70,12 @@ type CartI interface {
 	GetCart(req *pb.GetById) (*pb.Cart, error)
 	ListAllCarts(req *pb.ListAllCartReq) (*pb.ListAllCartRes, error)
 }	
+
+type NotificationI interface {
+	CreateNotification(req *pb.NotificationCreate) (*pb.Void, error)
+	NotifyAll(req *pb.NotificationMessage) (*pb.Void, error)
+	DeleteNotificcation(id *pb.GetById) (*pb.Void, error)
+	UpdateNotificcation(req *pb.NotificationUpdate) (*pb.Void, error)
+	GetNotifications(req *pb.NotifFilter) (*pb.NotificationList, error)
+	GetNotification(id *pb.GetById) (*pb.NotificationGet, error)
+}

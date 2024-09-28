@@ -44,11 +44,12 @@ func Run(cfg *config.Config) {
 
 	authService := s.NewAuthService(db)
 	userService := s.NewUserService(db)
-	productService := s.NewProductService(db,minio)
+	productService := s.NewProductService(db, minio,&prd.Producer{})
 	paymentService := s.NewPaymentService(db)
 	orderService := s.NewOrderService(db)
 	categoryService := s.NewCategoryService(db)
 	cartService := s.NewCartService(db)
+	notificationService := s.NewNotificationService(db)
 
 	// Kafka
 	brokers := []string{"kafka:9092"}
@@ -58,11 +59,12 @@ func Run(cfg *config.Config) {
 		slog.Error("Failed to create Kafka producer:", err)
 		return
 	}
-	Register(brokers, cm, authService, cartService, orderService, categoryService, paymentService, productService)
+	Register(brokers, cm, authService, cartService, orderService, categoryService, paymentService, productService,notificationService)
 	// HTTP Server
-	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService, cartService, rdb, &pr)
+	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService, cartService,notificationService, rdb, &pr)
 
 	router := a.NewGin(h)
+
 	router.SetTrustedProxies(nil)
 
 	if err := router.Run(cfg.GRPCPort); err != nil {

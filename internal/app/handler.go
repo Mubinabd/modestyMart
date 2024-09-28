@@ -2,12 +2,13 @@ package app
 
 import (
 	"errors"
+	"log"
 
 	"github.com/Mubinabd/modestyMart/internal/usecase/kafka"
 	"github.com/Mubinabd/modestyMart/internal/usecase/service"
 )
 
-func Register(brokers []string, kcm *kafka.KafkaConsumerManager, authService *service.AuthService, cartService *service.CartService,orderService *service.OrderService,categoryService *service.CategoryService,paymentService *service.PaymentService,productService *service.ProductService) error {
+func Register(brokers []string, kcm *kafka.KafkaConsumerManager, authService *service.AuthService, cartService *service.CartService, orderService *service.OrderService, categoryService *service.CategoryService, paymentService *service.PaymentService, productService *service.ProductService, notificationService *service.NotificationService) error {
 
 	if err := kcm.RegisterConsumer(brokers, "create", "create-id", UserRegister(authService)); err != nil {
 		if err == kafka.ErrConsumerAlreadyExists {
@@ -73,5 +74,21 @@ func Register(brokers []string, kcm *kafka.KafkaConsumerManager, authService *se
 			return errors.New("error registering consumer:" + err.Error())
 		}
 	}
+
+	if err := kcm.RegisterConsumer(brokers, "notification-create", "notification", NotificationCreateHandler(notificationService)); err != nil {
+		if err == kafka.ErrConsumerAlreadyExists {
+			log.Printf("Consumer for topic 'notification-create' already exists")
+		} else {
+			log.Fatalf("Error registering consumer: %v", err)
+		}
+	}
+	if err := kcm.RegisterConsumer(brokers, "notify-all", "notification-all", NotifyAllHandler(notificationService)); err != nil {
+		if err == kafka.ErrConsumerAlreadyExists {
+			log.Printf("Consumer for topic 'notify-all' already exists")
+		} else {
+			log.Fatalf("Error registering consumer: %v", err)
+		}
+	}
+
 	return nil
 }

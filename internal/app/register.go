@@ -24,7 +24,7 @@ func UserRegister(u *service.AuthService) func(message []byte) {
 			log.Fatal(err)
 			return
 		}
-		log.Printf("Register User: %+v",res)
+		log.Printf("Register User: %+v", res)
 	}
 }
 func CreateCategory(u *service.CategoryService) func(message []byte) {
@@ -169,5 +169,41 @@ func CreateCart(u *service.CartService) func(message []byte) {
 			return
 		}
 		log.Printf("create cart: %+v", res)
+	}
+}
+
+func NotificationCreateHandler(notifService *service.NotificationService) func(message []byte) {
+	return func(message []byte) {
+
+		//unmarshal the message
+		var notif pb.NotificationCreate
+		if err := protojson.Unmarshal(message, &notif); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
+		}
+
+		res, err := notifService.CreateNotification(context.Background(), &notif)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		log.Printf("Created notification: %+v", res)
+	}
+}
+func NotifyAllHandler(notifService *service.NotificationService) func(message []byte) {
+	return func(message []byte) {
+		//unmarshal the message
+		var req pb.NotificationMessage
+		if err := protojson.Unmarshal(message, &req); err != nil {
+			log.Fatalf("Failed to unmarshal JSON to Protobuf message: %v", err)
+			return
+		}
+
+		res, err := notifService.NotifyAll(context.Background(), &req)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		log.Printf("Notified All: %+v", res)
 	}
 }

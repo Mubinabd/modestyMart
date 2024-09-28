@@ -108,3 +108,14 @@ CREATE TABLE IF NOT EXISTS payments(
     updated_at TIMESTAMP,
     deleted_at BIGINT DEFAULT 0
 );
+
+CREATE TABLE if NOT EXISTS notifications(
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id), 
+    Message VARCHAR(255) NOT NULL,
+    Status VARCHAR not NULL,
+    SenderId VARCHAR NOT NULL
+    targetgroup VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
+    deleted_at BIGINT DEFAULT 0);

@@ -105,6 +105,73 @@
                 }
             }
         },
+        "/notifications": {
+            "get": {
+                "description": "Retrieve a list of notifications with optional filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "List notifications with filters",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Receiver ID",
+                        "name": "reciever_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Notification Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sender ID",
+                        "name": "sender_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genproto.NotificationList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "security": [
@@ -700,6 +767,245 @@
                 }
             }
         },
+        "/v1/notification/create": {
+            "post": {
+                "description": "Create a new notification with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Create a new notification",
+                "parameters": [
+                    {
+                        "description": "Notification details",
+                        "name": "notification",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/genproto.NotificationCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/genproto.Void"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/notification/delete/{id}": {
+            "delete": {
+                "description": "Delete a specific notification by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Delete a notification by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notification ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genproto.Void"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/notification/notify-all": {
+            "post": {
+                "description": "Send a notification message to all users in the specified group",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Send a notification to all users",
+                "parameters": [
+                    {
+                        "description": "Notification message",
+                        "name": "notification",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/genproto.NotificationMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genproto.Void"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/notification/update/{id}": {
+            "put": {
+                "description": "Update the details of a specific notification by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Update notification details by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notification ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Notification details",
+                        "name": "notification",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/genproto.NotificationUpt"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genproto.Void"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/notification/{id}": {
+            "get": {
+                "description": "Retrieve a specific notification by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Get a notification by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Notification ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/genproto.NotificationGet"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/order/by-product/{id}": {
             "get": {
                 "security": [
@@ -723,61 +1029,6 @@
                         "type": "string",
                         "description": "Product ID",
                         "name": "product_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order data",
-                        "schema": {
-                            "$ref": "#/definitions/genproto.GetOrdersRes"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Order not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/order/by-user/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get an Order by User ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Order"
-                ],
-                "summary": "Get Order By User ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
                         "in": "path",
                         "required": true
                     }
@@ -2189,6 +2440,88 @@
                 }
             }
         },
+        "genproto.NotificationCreate": {
+            "type": "object",
+            "properties": {
+                "Message": {
+                    "type": "string"
+                },
+                "RecieverId": {
+                    "type": "string"
+                },
+                "SenderId": {
+                    "type": "string"
+                }
+            }
+        },
+        "genproto.NotificationGet": {
+            "type": "object",
+            "properties": {
+                "CreatedAt": {
+                    "type": "string"
+                },
+                "Id": {
+                    "type": "string"
+                },
+                "Message": {
+                    "type": "string"
+                },
+                "SenderId": {
+                    "type": "string"
+                },
+                "Status": {
+                    "type": "string"
+                },
+                "UserId": {
+                    "type": "string"
+                }
+            }
+        },
+        "genproto.NotificationList": {
+            "type": "object",
+            "properties": {
+                "Limit": {
+                    "type": "integer"
+                },
+                "Notifications": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/genproto.NotificationGet"
+                    }
+                },
+                "Offset": {
+                    "type": "integer"
+                },
+                "TotalCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "genproto.NotificationMessage": {
+            "type": "object",
+            "properties": {
+                "Message": {
+                    "type": "string"
+                },
+                "SenderId": {
+                    "type": "string"
+                },
+                "TargetGroup": {
+                    "type": "string"
+                }
+            }
+        },
+        "genproto.NotificationUpt": {
+            "type": "object",
+            "properties": {
+                "Message": {
+                    "type": "string"
+                },
+                "Status": {
+                    "type": "string"
+                }
+            }
+        },
         "genproto.Orders": {
             "type": "object",
             "properties": {
@@ -2482,6 +2815,9 @@
                     "type": "string"
                 }
             }
+        },
+        "genproto.Void": {
+            "type": "object"
         }
     },
     "securityDefinitions": {
