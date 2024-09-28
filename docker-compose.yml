@@ -109,4 +109,5 @@ networks:
     external: true
 
 volumes:
+  minio:
   db:
