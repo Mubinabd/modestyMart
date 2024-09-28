@@ -66,7 +66,6 @@ func NewGin(h *handlers.Handlers) *gin.Engine {
 		order.GET("/list", h.ListOrders)
 		order.PUT("/update/:id", h.UpdateOrder)
 		order.DELETE("/delete/:id", h.DeleteOrder)
-		order.GET("/by-user/:id", h.GetOrderByUserID)
 		order.GET("/by-product/:id", h.GetOrderByProductID)
 	}
 

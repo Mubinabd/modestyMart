@@ -175,34 +175,6 @@ func (h *Handlers) DeleteOrder(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "Order deleted successfully"})
 }
 
-// @Summary Get Order By User ID
-// @Description Get an Order by User ID
-// @Tags Order
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param user_id path string true "User ID"
-// @Success 200 {object} pb.GetOrdersRes "Order data"
-// @Failure 400 {string} string "Invalid request"
-// @Failure 404 {string} string "Order not found"
-// @Failure 500 {string} string "Internal server error"
-// @Router /v1/order/by-user/{id} [get]
-func (h *Handlers) GetOrderByUserID(c *gin.Context) {
-	req := pb.OrderByUserId{}
-	user_id := c.Param("user_id")
-
-	req.UserID = user_id
-
-	res, err := h.Order.GetOrderByUserID(context.Background(), &req)
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(200, res)
-
-}
-
 // @Summary Get Order By Product ID
 // @Description Get an Order by Product ID
 // @Tags Order

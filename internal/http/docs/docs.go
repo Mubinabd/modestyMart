@@ -2510,7 +2510,7 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "API for Instant Delivery resources",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	
+
 }
 
 func init() {

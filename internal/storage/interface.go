@@ -30,7 +30,6 @@ type OrderI interface {
 	GetOrder(req *pb.GetById) (*pb.Orders, error)
 	DeleteOrder(req *pb.GetById) (*pb.Void, error)
 	ListAllOrders(req *pb.ListOrdersReq) (*pb.ListOrdersRes, error)
-	GetOrderByUserID(req *pb.OrderByUserId) (*pb.GetOrdersRes, error)
 	GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrdersRes, error)
 }
 type PaymentI interface {

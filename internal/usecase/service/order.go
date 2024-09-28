@@ -62,14 +62,6 @@ func (s *OrderService) GetOrder(ctx context.Context, req *pb.GetById) (*pb.Order
 
 	return res, nil
 }
-func (s *OrderService) GetOrderByUserID(ctx context.Context, req *pb.OrderByUserId) (*pb.GetOrdersRes, error) {
-	res, err := s.storage.OrderS.GetOrderByUserID(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
 
 func (s *OrderService) GetOrderByProductID(ctx context.Context, req *pb.OrderByProductId) (*pb.GetOrdersRes, error) {
 	res, err := s.storage.OrderS.GetOrderByProductID(req)
