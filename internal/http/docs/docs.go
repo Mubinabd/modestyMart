@@ -2455,8 +2455,7 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "API for Instant Delivery resources",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
+	
 }
 
 func init() {
