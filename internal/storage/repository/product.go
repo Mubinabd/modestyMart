@@ -230,7 +230,6 @@ func (p *ProductRepo) ListAllProducts(req *pb.ListAllProductsReq) (*pb.ListAllPr
 	count := len(products)
 	return &pb.ListAllProductsRes{Products: products, Count: int32(count)}, nil
 }
-
 func (p *ProductRepo) GetCategory(req *pb.GetCategoryReq) (*pb.GetCategoryRes, error) {
 	query := `
 	SELECT
@@ -254,14 +253,14 @@ func (p *ProductRepo) GetCategory(req *pb.GetCategoryReq) (*pb.GetCategoryRes, e
 	WHERE
 		c.id = $1
 	AND
-		p.deleted_at = 0
+		p.deleted_at IS NULL
 	`
 
 	row := p.db.QueryRow(query, req.CategoryID)
 
-    var product pb.GetCategoryRes
-    product.Products = &pb.Products{}
-    product.Products.Category = &pb.Categories{}
+	var product pb.GetCategoryRes
+	product.Products = &pb.Products{}
+	product.Products.Category = &pb.Categories{}
 
 	// Perform the scan
 	err := row.Scan(
@@ -277,15 +276,16 @@ func (p *ProductRepo) GetCategory(req *pb.GetCategoryReq) (*pb.GetCategoryRes, e
 		&product.Products.Category.Description,
 		&product.Products.Category.CreatedAt,
 	)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
-			log.Println("Category not found", err)
-			return nil, sql.ErrNoRows // Let the handler handle this as a 404
+			log.Println("Category not found:", err)
+			return nil, sql.ErrNoRows 
 		}
-		log.Println("Error while fetching product", err)
+		log.Println("Error while fetching product:", err)
 		return nil, err
 	}
+
 	return &product, nil
 }
 

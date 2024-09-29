@@ -298,9 +298,9 @@ func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrders
 	ON
 		o.product_id = p.id
 	WHERE
-		o.deleted_at = 0
-	AND
 		p.id = $1
+	AND
+		o.deleted_at = 0
 	`
 	rows, err := o.db.Query(query, req.ProductID)
 	if err != nil {
