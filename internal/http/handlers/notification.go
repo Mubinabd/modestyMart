@@ -7,7 +7,6 @@ import (
 	pb "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
 
 	"github.com/gin-gonic/gin"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // CreateNotification godoc
@@ -29,13 +28,19 @@ func (h *Handlers) CreateNotification(c *gin.Context) {
 		return
 	}
 
-	input, err := protojson.Marshal(&req)
-	if err != nil {
-		c.JSON(500, "Internal server error: "+err.Error())
-		return
-	}
+	// input, err := protojson.Marshal(&req)
+	// if err != nil {
+	// 	c.JSON(500, "Internal server error: "+err.Error())
+	// 	return
+	// }
 
-	err = h.Producer.ProduceMessages("notification-create", input)
+	// err = h.Producer.ProduceMessages("notification-create", input)
+	// if err != nil {
+	// 	c.JSON(500, "Internal server error: "+err.Error())
+	// 	return
+	// }
+
+	_, err := h.Notification.CreateNotification(context.Background(), &req)
 	if err != nil {
 		c.JSON(500, "Internal server error: "+err.Error())
 		return

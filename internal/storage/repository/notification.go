@@ -21,82 +21,72 @@ func NewNotificationRepo(db *sql.DB, cf *config.Config) *NotificationRepo {
 	return &NotificationRepo{db: db, cf: cf}
 }
 func (r *NotificationRepo) CreateNotification(req *pb.NotificationCreate) (*pb.Void, error) {
+	// Begin transaction
 	tr, err := r.db.Begin()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
 	}
+	defer tr.Rollback() // Ensure rollback in case of error
+
 	var (
 		sender_id  string
 		user_email string
 		user_name  string
 	)
 
+	// If no sender ID is provided, assign default user
 	if req.SenderId == "" {
-		query := `select id from users where role = 'user' and deleted_at = 0 limit 1`
+		query := `SELECT id FROM users WHERE role = 'user' AND deleted_at = 0 LIMIT 1`
 		row := tr.QueryRow(query)
 		err := row.Scan(&sender_id)
 		if err == sql.ErrNoRows {
-			tr.Rollback()
-			return nil, errors.New("no admin found")
+			return nil, fmt.Errorf("no user found: %w", err)
 		} else if err != nil {
-			tr.Rollback()
-			return nil, err
+			return nil, fmt.Errorf("failed to get sender ID: %w", err)
 		}
 	} else {
 		sender_id = req.SenderId
 	}
 
-	//geting the email
-	user_query := `select email,username from users where id = $1 and deleted_at = 0`
+	// Fetch recipient email and username
+	user_query := `SELECT email, username FROM users WHERE id = $1 AND deleted_at = 0`
 	row := tr.QueryRow(user_query, req.RecieverId)
 	err = row.Scan(&user_email, &user_name)
 	if err == sql.ErrNoRows {
-		tr.Rollback()
-		return nil, errors.New("user not found")
+		return nil, fmt.Errorf("user not found with ID %s: %w", req.RecieverId, err)
 	} else if err != nil {
-		tr.Rollback()
-		return nil, err
+		return nil, fmt.Errorf("failed to get recipient info: %w", err)
 	}
 
-	//sending email
-	from := r.cf.Email
-	password := r.cf.EmailPassword
+	// Send the notification email
 	err = helper.SendVerificationCode(helper.Params{
-		From:     from,
-		Password: password,
+		From:     r.cf.Email,
+		Password: r.cf.EmailPassword,
 		To:       user_email,
 		Message:  fmt.Sprintf("Hi %s", user_name),
 		Code:     req.Message,
 	})
-
 	if err != nil {
-		tr.Rollback()
-		return nil, errors.New("failed to send notification email" + err.Error())
-	}
-	query := `insert into notifications(id,
-										reciever_id,
-										sender_id,
-										message,
-										status)
-						values($1,$2,$3,$4,$5)`
-	_, err = tr.Exec(query,
-		uuid.NewString(),
-		req.RecieverId,
-		sender_id,
-		req.Message,
-		"pending")
-	if err != nil {
-		tr.Rollback()
-		return nil, err
+		return nil, fmt.Errorf("failed to send notification email: %w", err)
 	}
 
-	err = tr.Commit()
+	// Insert notification into the database
+	query := `INSERT INTO notifications(id, reciever_id, sender_id, message, status)
+	          VALUES($1, $2, $3, $4, $5)`
+	_, err = tr.Exec(query, uuid.NewString(), req.RecieverId, sender_id, req.Message, "pending")
 	if err != nil {
-		tr.Rollback()
-		return nil, err
+		return nil, fmt.Errorf("failed to insert notification: %w", err)
 	}
+
+	// Commit the transaction
+	if err := tr.Commit(); err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	// Return success
 	return &pb.Void{}, nil
 }
+
 func (r *NotificationRepo) NotifyAll(req *pb.NotificationMessage) (*pb.Void, error) {
 	if req.SenderId == "" {
 		var sender_id string
