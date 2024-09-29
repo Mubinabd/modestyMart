@@ -69,7 +69,7 @@ func NewGin(h *handlers.Handlers) *gin.Engine {
 		order.GET("/by-product/:id", h.GetOrderByProductID)
 	}
 
-	notifications := router.Group("/v1/notification")
+	notifications := router.Group("/v1/notification").Use(m.JWTMiddleware())
 	{
 		notifications.POST("/create", h.CreateNotification)
 		notifications.GET("/:id", h.GetNotification)
