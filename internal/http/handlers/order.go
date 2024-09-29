@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"strconv"
 
 	pb "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
+	"github.com/google/uuid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -120,7 +122,7 @@ func (h *Handlers) ListOrders(c *gin.Context) {
 
 	status := c.Query("status")
 	filter.Status = status
-	
+
 	f := pb.Pagination{}
 	filter.Pagination = &f
 
@@ -188,17 +190,32 @@ func (h *Handlers) DeleteOrder(c *gin.Context) {
 // @Failure 500 {string} string "Internal server error"
 // @Router /v1/order/by-product/{id} [get]
 func (h *Handlers) GetOrderByProductID(c *gin.Context) {
-	req := pb.OrderByProductId{}
-	product_id := c.Param("product_id")
+	productID := c.Param("id")
 
-	req.ProductID = product_id
+	if productID == "" {
+		c.JSON(400, gin.H{"error": "Product ID cannot be empty"})
+		return
+	}
+
+	if _, err := uuid.Parse(productID); err != nil {
+		c.JSON(400, gin.H{"error": "Invalid Product ID format"})
+		return
+	}
+
+	req := pb.OrderByProductId{
+		ProductID: productID,
+	}
 
 	res, err := h.Order.GetOrderByProductID(context.Background(), &req)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		if err == sql.ErrNoRows {
+			c.JSON(404, gin.H{"error": "No orders found for the product"})
+		} else {
+			c.JSON(500, gin.H{"error": "Internal server error"})
+		}
 		return
 	}
 
 	c.JSON(200, res)
-
 }
+

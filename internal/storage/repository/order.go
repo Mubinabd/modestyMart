@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -27,10 +28,10 @@ func (o *OrderRepo) CreateOrder(req *pb.CreateOrderReq) (*pb.Void, error) {
 	INSERT INTO orders (id,user_id, product_id, quantity, total_price, status)
 	VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
-	_, err := o.db.Exec(query, id,req.UserID, req.ProductID, req.Quantity, req.TotalPrice, req.Status)
+	_, err := o.db.Exec(query, id, req.UserID, req.ProductID, req.Quantity, req.TotalPrice, req.Status)
 	if err != nil {
 		log.Println("Error while creating order", err)
-		return nil,err
+		return nil, err
 	}
 
 	return &pb.Void{}, nil
@@ -264,8 +265,12 @@ func (o *OrderRepo) ListAllOrders(req *pb.ListOrdersReq) (*pb.ListOrdersRes, err
 	}, nil
 }
 
-
 func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrdersRes, error) {
+	// Ensure ProductID is not empty
+	if req.ProductID == "" {
+		log.Println("Product ID cannot be empty")
+		return nil, errors.New("invalid product ID")
+	}
 
 	query := `
 	SELECT
@@ -300,14 +305,16 @@ func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrders
 	WHERE
 		p.id = $1
 	AND
-		o.deleted_at = 0
+		o.deleted_at IS NULL
 	`
+
 	rows, err := o.db.Query(query, req.ProductID)
 	if err != nil {
-		log.Println("Error while listing orders", err)
+		log.Println("Error while listing orders:", err)
 		return nil, err
 	}
 	defer rows.Close()
+
 	var orders []*pb.Orders
 	for rows.Next() {
 		var order pb.Orders
@@ -333,7 +340,7 @@ func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrders
 			&order.Product.ImageUrl,
 			&order.Product.CreatedAt)
 		if err != nil {
-			log.Println("Error while scanning orders", err)
+			log.Println("Error while scanning orders:", err)
 			return nil, err
 		}
 		orders = append(orders, &order)
