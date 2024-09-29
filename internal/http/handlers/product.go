@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"log"
 	"strconv"
@@ -174,44 +173,6 @@ func (h *Handlers) DeleteProduct(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"message": "Product deleted successfully"})
-}
-
-// @Summary Get Product By Category ID
-// @Description Get a Product by Category ID
-// @Tags Product
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param category_id path string true "Category ID"
-// @Success 200 {object} pb.GetCategoryRes "Product data"
-// @Failure 400 {string} string "Invalid request"
-// @Failure 404 {string} string "Product not found"
-// @Failure 500 {string} string "Internal server error"
-// @Router /v1/product/by-category/{category_id} [get]
-func (h *Handlers) GetCategories(c *gin.Context) {
-	categoryID := c.Param("category_id")
-
-	if categoryID == "" {
-		c.JSON(400, gin.H{"error": "category ID cannot be empty"})
-		return
-	}
-
-	req := pb.GetCategoryReq{
-		CategoryID: categoryID,
-	}
-
-	res, err := h.Product.GetCategory(context.Background(), &req)
-	if err != nil {
-		// Differentiate error types
-		if err == sql.ErrNoRows {
-			c.JSON(404, gin.H{"error": "Category not found"})
-		} else {
-			c.JSON(500, gin.H{"error": "Internal server error"})
-		}
-		return
-	}
-
-	c.JSON(200, res)
 }
 
 // @Summary Get Product By Product ID

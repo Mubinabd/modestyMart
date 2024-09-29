@@ -24,7 +24,6 @@ const (
 	ProductsService_GetProduct_FullMethodName              = "/proto.ProductsService/GetProduct"
 	ProductsService_DeleteProduct_FullMethodName           = "/proto.ProductsService/DeleteProduct"
 	ProductsService_ListAllProducts_FullMethodName         = "/proto.ProductsService/ListAllProducts"
-	ProductsService_GetCategory_FullMethodName             = "/proto.ProductsService/GetCategory"
 	ProductsService_GetProductsByPriceRange_FullMethodName = "/proto.ProductsService/GetProductsByPriceRange"
 )
 
@@ -37,7 +36,6 @@ type ProductsServiceClient interface {
 	GetProduct(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Products, error)
 	DeleteProduct(ctx context.Context, in *GetById, opts ...grpc.CallOption) (*Void, error)
 	ListAllProducts(ctx context.Context, in *ListAllProductsReq, opts ...grpc.CallOption) (*ListAllProductsRes, error)
-	GetCategory(ctx context.Context, in *GetCategoryReq, opts ...grpc.CallOption) (*GetCategoryRes, error)
 	GetProductsByPriceRange(ctx context.Context, in *GetProductsByPriceRangeReq, opts ...grpc.CallOption) (*ListAllProductsRes, error)
 }
 
@@ -99,16 +97,6 @@ func (c *productsServiceClient) ListAllProducts(ctx context.Context, in *ListAll
 	return out, nil
 }
 
-func (c *productsServiceClient) GetCategory(ctx context.Context, in *GetCategoryReq, opts ...grpc.CallOption) (*GetCategoryRes, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetCategoryRes)
-	err := c.cc.Invoke(ctx, ProductsService_GetCategory_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *productsServiceClient) GetProductsByPriceRange(ctx context.Context, in *GetProductsByPriceRangeReq, opts ...grpc.CallOption) (*ListAllProductsRes, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListAllProductsRes)
@@ -128,7 +116,6 @@ type ProductsServiceServer interface {
 	GetProduct(context.Context, *GetById) (*Products, error)
 	DeleteProduct(context.Context, *GetById) (*Void, error)
 	ListAllProducts(context.Context, *ListAllProductsReq) (*ListAllProductsRes, error)
-	GetCategory(context.Context, *GetCategoryReq) (*GetCategoryRes, error)
 	GetProductsByPriceRange(context.Context, *GetProductsByPriceRangeReq) (*ListAllProductsRes, error)
 	mustEmbedUnimplementedProductsServiceServer()
 }
@@ -151,9 +138,6 @@ func (UnimplementedProductsServiceServer) DeleteProduct(context.Context, *GetByI
 }
 func (UnimplementedProductsServiceServer) ListAllProducts(context.Context, *ListAllProductsReq) (*ListAllProductsRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAllProducts not implemented")
-}
-func (UnimplementedProductsServiceServer) GetCategory(context.Context, *GetCategoryReq) (*GetCategoryRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCategory not implemented")
 }
 func (UnimplementedProductsServiceServer) GetProductsByPriceRange(context.Context, *GetProductsByPriceRangeReq) (*ListAllProductsRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProductsByPriceRange not implemented")
@@ -261,24 +245,6 @@ func _ProductsService_ListAllProducts_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ProductsService_GetCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCategoryReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProductsServiceServer).GetCategory(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProductsService_GetCategory_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductsServiceServer).GetCategory(ctx, req.(*GetCategoryReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ProductsService_GetProductsByPriceRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetProductsByPriceRangeReq)
 	if err := dec(in); err != nil {
@@ -323,10 +289,6 @@ var ProductsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAllProducts",
 			Handler:    _ProductsService_ListAllProducts_Handler,
-		},
-		{
-			MethodName: "GetCategory",
-			Handler:    _ProductsService_GetCategory_Handler,
 		},
 		{
 			MethodName: "GetProductsByPriceRange",

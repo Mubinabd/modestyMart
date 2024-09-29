@@ -69,14 +69,6 @@ func (s *ProductService) GetProduct(ctx context.Context, req *pb.GetById) (*pb.P
 
 	return res, nil
 }
-func (s *ProductService) GetCategory(ctx context.Context, req *pb.GetCategoryReq) (*pb.GetCategoryRes, error) {
-	res, err := s.storage.ProductS.GetCategory(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
 
 func (s *ProductService) GetProductsByPriceRange(ctx context.Context, req *pb.GetProductsByPriceRangeReq) (*pb.ListAllProductsRes, error) {
 	res, err := s.storage.ProductS.GetProductsByPriceRange(req)

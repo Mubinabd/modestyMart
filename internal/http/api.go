@@ -83,7 +83,6 @@ func NewGin(h *handlers.Handlers) *gin.Engine {
 		product.GET("/list", h.ListProducts)
 		product.PUT("/update/:id", h.UpdateProduct)
 		product.DELETE("/delete/:id", h.DeleteProduct)
-		product.GET("/by-category/:id", h.GetCategories)
 		product.GET("/by-range", h.GetProductsByPriceRange)
 	}
 

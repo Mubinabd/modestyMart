@@ -20,7 +20,6 @@ type ProductI interface {
 	GetProduct(req *pb.GetById) (*pb.Products, error)
 	DeleteProduct(req *pb.GetById) (*pb.Void, error)
 	ListAllProducts(req *pb.ListAllProductsReq) (*pb.ListAllProductsRes, error)
-	GetCategory(req *pb.GetCategoryReq) (*pb.GetCategoryRes, error)
 	GetProductsByPriceRange(req *pb.GetProductsByPriceRangeReq) (*pb.ListAllProductsRes, error)
 }
 

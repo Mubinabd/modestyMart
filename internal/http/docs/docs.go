@@ -1200,61 +1200,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/product/by-category/{category_id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get a Product by Category ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Product"
-                ],
-                "summary": "Get Product By Category ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Category ID",
-                        "name": "category_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Product data",
-                        "schema": {
-                            "$ref": "#/definitions/genproto.GetCategoryRes"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Product not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/product/by-range": {
             "get": {
                 "security": [
@@ -2021,17 +1966,6 @@ const docTemplate = `{
                 }
             }
         },
-        "genproto.GetCategoryRes": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "products": {
-                    "$ref": "#/definitions/genproto.Products"
-                }
-            }
-        },
         "genproto.GetOrdersRes": {
             "type": "object",
             "properties": {
@@ -2455,7 +2389,7 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "API for Instant Delivery resources",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	
+
 }
 
 func init() {
