@@ -266,7 +266,6 @@ func (o *OrderRepo) ListAllOrders(req *pb.ListOrdersReq) (*pb.ListOrdersRes, err
 }
 
 func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrdersRes, error) {
-	// Ensure ProductID is not empty
 	if req.ProductID == "" {
 		log.Println("Product ID cannot be empty")
 		return nil, errors.New("invalid product ID")
@@ -303,7 +302,7 @@ func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrders
 	ON
 		o.product_id = p.id
 	WHERE
-		p.id = $1
+		o.product_id = $1
 	AND
 		o.deleted_at IS NULL
 	`
