@@ -303,8 +303,6 @@ func (o *OrderRepo) GetOrderByProductID(req *pb.OrderByProductId) (*pb.GetOrders
 		o.product_id = p.id
 	WHERE
 		o.product_id = $1
-	AND
-		o.deleted_at IS NULL
 	`
 
 	rows, err := o.db.Query(query, req.ProductID)
