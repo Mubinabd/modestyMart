@@ -49,7 +49,6 @@ func Run(cfg *config.Config) {
 	orderService := s.NewOrderService(db)
 	categoryService := s.NewCategoryService(db)
 	cartService := s.NewCartService(db)
-	notificationService := s.NewNotificationService(db)
 
 	// Kafka
 	brokers := []string{"kafka:9092"}
@@ -59,9 +58,9 @@ func Run(cfg *config.Config) {
 		slog.Error("Failed to create Kafka producer:", err)
 		return
 	}
-	Register(brokers, cm, authService, cartService, orderService, categoryService, paymentService, productService,notificationService)
+	Register(brokers, cm, authService, cartService, orderService, categoryService, paymentService, productService)
 	// HTTP Server
-	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService, cartService,notificationService, rdb, &pr)
+	h := handlers.NewHandler(productService, paymentService, orderService, categoryService, authService, userService, cartService, rdb, &pr)
 
 	router := a.NewGin(h)
 

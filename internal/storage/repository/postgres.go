@@ -16,7 +16,6 @@ type Storage struct {
 	PaymentS  storage.PaymentI
 	CategoryS storage.CategoryI
 	CartS storage.CartI
-	NotificationS storage.NotificationI
 	AuthS     storage.AuthI
 	UserS     storage.UserI
 }
@@ -49,7 +48,6 @@ func New(cfg *config.Config) (*Storage, error) {
 		AuthS:     NewAuthRepo(db),
 		UserS:     NewUserRepo(db),
 		CartS: NewCartRepo(db),
-		NotificationS: NewNotificationRepo(db,cfg),
 	}, nil
 }
 
@@ -99,11 +97,4 @@ func (s *Storage) User() storage.UserI {
 		s.UserS = NewUserRepo(s.Db)
 	}
 	return s.UserS
-}
-
-func (s *Storage) Notification() storage.NotificationI {
-	if s.NotificationS == nil {
-		s.NotificationS = NewNotificationRepo(s.Db,&config.Config{})
-	}
-	return s.NotificationS
 }
