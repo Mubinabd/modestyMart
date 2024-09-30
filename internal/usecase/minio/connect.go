@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Mubinabd/modestyMart/internal/pkg/config"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/Mubinabd/modestyMart/internal/pkg/config"
 )
 
 type MinIO struct {
 	client *minio.Client
-	Cf *config.Config
+	Cf     *config.Config
 }
+
 var ContentType = map[string]string{
 	".png": "image/png",
 	".pdf": "application/pdf",
@@ -67,10 +68,10 @@ func MinIOConnect(cf *config.Config) (*MinIO, error) {
 
 	return &MinIO{
 		client: minioClient,
-		Cf: cf,
-		}, err
+		Cf:     cf,
+	}, err
 }
-func (m *MinIO) Upload(fileName string,contentType string) (*string,error ){
+func (m *MinIO) Upload(fileName string, contentType string) (*string, error) {
 
 	uploadPath := m.Cf.MinioPath + fileName
 	c_type := ContentType[contentType]
@@ -79,10 +80,9 @@ func (m *MinIO) Upload(fileName string,contentType string) (*string,error ){
 	})
 
 	if err != nil {
-		return nil,fmt.Errorf("error while uploading to minio: %v", err)
+		return nil, fmt.Errorf("error while uploading to minio: %v", err)
 	}
 
-	minioURL := fmt.Sprintf("http://localhost:9000/%s/%s",m.Cf.BucketName ,fileName)
+	minioURL := fmt.Sprintf("http://localhost:9000/%s/%s", m.Cf.BucketName, fileName)
 	return &minioURL, nil
 }
-

@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Mubinabd/modestyMart/internal/pkg/config"
 	"github.com/jung-kurt/gofpdf/v2"
 	"github.com/skip2/go-qrcode"
-	"github.com/Mubinabd/modestyMart/internal/pkg/config"
 )
 
 func GenerateCertificate(name, course, issuedBy string, cf *config.Config) (*string, error) {
@@ -65,7 +65,7 @@ func GenerateCertificate(name, course, issuedBy string, cf *config.Config) (*str
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &filename, nil
 }
 

@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	st "github.com/Mubinabd/modestyMart/internal/storage/repository"
 	pb "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
+	st "github.com/Mubinabd/modestyMart/internal/storage/repository"
 )
 
 type OrderService struct {
