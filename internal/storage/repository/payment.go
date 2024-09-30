@@ -28,7 +28,7 @@ func (pr *PaymentRepo) CreatePayment(req *pb.CreatePaymentReq) (*pb.Void, error)
 		return nil, err
 	}
 
-	var currentAmount float64 
+	var currentAmount float64
 	cartQuery := `SELECT amount FROM carts WHERE id = $1`
 	err = tx.QueryRow(cartQuery, req.CardId).Scan(&currentAmount)
 	if err != nil {
@@ -37,16 +37,16 @@ func (pr *PaymentRepo) CreatePayment(req *pb.CreatePaymentReq) (*pb.Void, error)
 		return nil, err
 	}
 
-	if currentAmount < float64(req.Amount) { 
+	if currentAmount < float64(req.Amount) {
 		log.Println("Insufficient amount in the cart")
 		tx.Rollback()
 		return nil, fmt.Errorf("insufficient amount in the cart")
 	}
 
-	newAmount := currentAmount - float64(req.Amount) 
+	newAmount := currentAmount - float64(req.Amount)
 
-	updateCartQuery := `UPDATE carts SET amount = $1 WHERE id = $2` 
-	_, err = tx.Exec(updateCartQuery, newAmount, req.CardId)        
+	updateCartQuery := `UPDATE carts SET amount = $1 WHERE id = $2`
+	_, err = tx.Exec(updateCartQuery, newAmount, req.CardId)
 	if err != nil {
 		log.Println("Error updating cart amount", err)
 		tx.Rollback()
@@ -74,7 +74,7 @@ func (pr *PaymentRepo) CreatePayment(req *pb.CreatePaymentReq) (*pb.Void, error)
 
 func (pr *PaymentRepo) GetPayment(req *pb.GetById) (*pb.Payment, error) {
 	var payment pb.Payment
-	var order pb.OrdersRes 
+	var order pb.OrdersRes
 	query := `SELECT
 		p.id,
 		p.payment_method, 
@@ -126,7 +126,6 @@ func (pr *PaymentRepo) GetPayment(req *pb.GetById) (*pb.Payment, error) {
 
 	return &payment, nil
 }
-
 
 func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRes, error) {
 
@@ -203,7 +202,7 @@ func (pr *PaymentRepo) ListPayments(req *pb.ListPaymentsReq) (*pb.ListPaymentsRe
 			&payment.Status,
 			&payment.CartId,
 			&payment.CreatedAt,
-			&payment.Order.Id, 
+			&payment.Order.Id,
 			&payment.Order.UserID,
 			&payment.Order.ProductID,
 			&payment.Order.TotalPrice,

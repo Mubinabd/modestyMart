@@ -34,11 +34,11 @@ func (c *CartRepo) CreateCart(req *pb.CreateCartReq) (*pb.Void, error) {
 	return &pb.Void{}, nil
 }
 func (c *CartRepo) GetCart(req *pb.GetById) (*pb.Cart, error) {
-    var cart pb.Cart
+	var cart pb.Cart
 
-    cart.User = &pb.UserRes{}
+	cart.User = &pb.UserRes{}
 
-    query := `SELECT
+	query := `SELECT
         c.id,
         c.cart_number,
         c.cart_name,
@@ -60,26 +60,25 @@ func (c *CartRepo) GetCart(req *pb.GetById) (*pb.Cart, error) {
     AND
         c.deleted_at = 0`
 
-    row := c.db.QueryRow(query, req.Id)
-    err := row.Scan(
-        &cart.Id,
-        &cart.CartNumber,
-        &cart.CartName,
-        &cart.Amount,
-        &cart.CreatedAt,
-        &cart.User.Id,        
-        &cart.User.Username,
-        &cart.User.Email,
-        &cart.User.FullName,
-        &cart.User.DateOfBirth,
-    )
-    if err != nil {
-        log.Println("Error while getting Cart", err)
-        return nil, err
-    }
-    return &cart, nil
+	row := c.db.QueryRow(query, req.Id)
+	err := row.Scan(
+		&cart.Id,
+		&cart.CartNumber,
+		&cart.CartName,
+		&cart.Amount,
+		&cart.CreatedAt,
+		&cart.User.Id,
+		&cart.User.Username,
+		&cart.User.Email,
+		&cart.User.FullName,
+		&cart.User.DateOfBirth,
+	)
+	if err != nil {
+		log.Println("Error while getting Cart", err)
+		return nil, err
+	}
+	return &cart, nil
 }
-
 
 func (c *CartRepo) ListAllCarts(req *pb.ListAllCartReq) (*pb.ListAllCartRes, error) {
 
@@ -137,7 +136,7 @@ func (c *CartRepo) ListAllCarts(req *pb.ListAllCartReq) (*pb.ListAllCartRes, err
 	carts := []*pb.Cart{}
 	for rows.Next() {
 		var cart pb.Cart
-		cart.User = &pb.UserRes{} 
+		cart.User = &pb.UserRes{}
 		err := rows.Scan(
 			&cart.Id,
 			&cart.CartNumber,

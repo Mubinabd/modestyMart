@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Mubinabd/modestyMart/internal/storage"
 	"github.com/Mubinabd/modestyMart/internal/pkg/config"
+	"github.com/Mubinabd/modestyMart/internal/storage"
 )
 
 type Storage struct {
@@ -15,7 +15,7 @@ type Storage struct {
 	ProductS  storage.ProductI
 	PaymentS  storage.PaymentI
 	CategoryS storage.CategoryI
-	CartS storage.CartI
+	CartS     storage.CartI
 	AuthS     storage.AuthI
 	UserS     storage.UserI
 }
@@ -47,7 +47,7 @@ func New(cfg *config.Config) (*Storage, error) {
 		CategoryS: NewCategoryRepo(db),
 		AuthS:     NewAuthRepo(db),
 		UserS:     NewUserRepo(db),
-		CartS: NewCartRepo(db),
+		CartS:     NewCartRepo(db),
 	}, nil
 }
 

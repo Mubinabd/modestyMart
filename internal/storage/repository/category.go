@@ -85,7 +85,6 @@ func (c *CategoryRepo) ListCategories(req *pb.ListAllCategoriesReq) (*pb.ListCat
 		argCount++
 	}
 
-
 	if len(filters) > 0 {
 		query += " WHERE " + strings.Join(filters, " AND ")
 	}
@@ -101,7 +100,7 @@ func (c *CategoryRepo) ListCategories(req *pb.ListAllCategoriesReq) (*pb.ListCat
 			argCount++
 		}
 	}
-	rows, err := c.db.Query(query,args...)
+	rows, err := c.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
