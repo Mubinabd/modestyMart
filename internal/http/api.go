@@ -36,7 +36,6 @@ func NewGin(h *handlers.Handlers) *gin.Engine {
 	// }
 	// router.Use(m.NewAuth(enforcer))
 
-
 	router.POST("/register", h.RegisterUser).Use(m.Middleware())
 	router.POST("/login", h.LoginUser).Use(m.Middleware())
 	router.POST("/forgot-password", h.ForgotPassword)
@@ -85,7 +84,6 @@ func NewGin(h *handlers.Handlers) *gin.Engine {
 		product.DELETE("/delete/:id", h.DeleteProduct)
 		product.GET("/by-range", h.GetProductsByPriceRange)
 	}
-
 
 	user := router.Group("/v1/user").Use(m.JWTMiddleware())
 	{
