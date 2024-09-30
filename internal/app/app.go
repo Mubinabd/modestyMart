@@ -44,7 +44,7 @@ func Run(cfg *config.Config) {
 
 	authService := s.NewAuthService(db)
 	userService := s.NewUserService(db)
-	productService := s.NewProductService(db, minio,&prd.Producer{})
+	productService := s.NewProductService(db, minio, &prd.Producer{})
 	paymentService := s.NewPaymentService(db)
 	orderService := s.NewOrderService(db)
 	categoryService := s.NewCategoryService(db)
