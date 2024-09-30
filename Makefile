@@ -23,5 +23,5 @@ swag-gen:
 
 git:
 	git add .
-	git commit -m "*fixed"
+	git commit -m "final verse"
 	git push 
