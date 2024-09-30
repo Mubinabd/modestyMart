@@ -218,4 +218,3 @@ func (h *Handlers) GetOrderByProductID(c *gin.Context) {
 
 	c.JSON(200, res)
 }
-

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	t "github.com/Mubinabd/modestyMart/internal/pkg/token"
 	auth "github.com/Mubinabd/modestyMart/internal/pkg/genproto"
+	t "github.com/Mubinabd/modestyMart/internal/pkg/token"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
 )

@@ -99,7 +99,6 @@ func (h *Handlers) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-
 	c.JSON(200, gin.H{"message": "Category updated successfully"})
 }
 
