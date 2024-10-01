@@ -10,5 +10,5 @@ WORKDIR /app
 COPY --from=builder /app/modestyMart .
 COPY .env .env 
 RUN chmod +x modestyMart
-EXPOSE 8080
+EXPOSE 5050
 CMD ["./modestyMart"]
